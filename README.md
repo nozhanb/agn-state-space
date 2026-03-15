@@ -1,10 +1,11 @@
-# AGN X-ray Variability: Simulation-Based Inference
+# AGN X-ray Variability: State-Space Modelling
 
-Bayesian inference of stochastic X-ray variability in Active Galactic Nuclei
-(AGNs) via a simulation-based approach.  The pipeline jointly recovers the
-hydrogen column density NH(t) and the power-law normalisation φ(t) from
-observed X-ray count spectra using an AR(1) latent process model and
-Hamiltonian Monte Carlo (HMC/NUTS) implemented in NumPyro.
+State-space modelling of X-ray spectral variability in Active Galactic Nuclei
+(AGNs) and X-ray binaries (XRBs).  The framework links observed photon count
+time series to two latent physical parameters --- hydrogen column density NH(t)
+and coronal height h_c(t) --- each modelled as an AR(1) stochastic process.
+Posterior inference is performed using Hamiltonian Monte Carlo (HMC/NUTS)
+implemented in NumPyro.
 
 ---
 
@@ -132,8 +133,8 @@ Loads the inference output and plots:
 ## Installation
 
 ```bash
-conda create -n agn-sbi python=3.11
-conda activate agn-sbi
+conda create -n agn-state-space python=3.11
+conda activate agn-state-space
 pip install -r requirements.txt
 ```
 
