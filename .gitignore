@@ -1,0 +1,42 @@
+# Large inference output files (>100 MB)
+*.npz
+*.pkl
+*.pickle
+
+# Cached simulation and PSD results (regenerable)
+results/cache_*.npz
+code_backup/Claude_Beta_Recovery/results/cache_*.npz
+
+# Raw results directories (regenerable outputs)
+code_backup/Claude_Beta_Recovery/results/
+code_backup/plot_old/
+
+# Data directories inside reproducibility plots (large files excluded)
+plots/*/data/*.npz
+plots/*/data/*.pkl
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Stan compiled models
+*.stan.exe
+*.hpp
+*/Stan_files/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.blg
+*.bbl

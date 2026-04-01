@@ -1,0 +1,1967 @@
+% ============================================================
+%  Pre-Analysis Feasibility Assessment in Bayesian Inference
+%  A practical guide for study design and data requirements
+% ============================================================
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{titlesec}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue!60!black,
+    urlcolor   = blue!60!black,
+    citecolor  = blue!60!black,
+}
+
+\definecolor{boxbg}{RGB}{245, 248, 255}
+\definecolor{boxborder}{RGB}{70, 130, 180}
+
+% Highlighted box for key results
+\newmdenv[
+    backgroundcolor = boxbg,
+    linecolor       = boxborder,
+    linewidth       = 1.2pt,
+    innerleftmargin = 12pt,
+    innerrightmargin= 12pt,
+    innertopmargin  = 10pt,
+    innerbottommargin=10pt,
+    skipabove       = 10pt,
+    skipbelow       = 10pt,
+]{keybox}
+
+\titleformat{\section}{\large\bfseries}{{\thesection.}}{0.6em}{}[\vspace{-2pt}\rule{\linewidth}{0.4pt}]
+\titleformat{\subsection}{\normalsize\bfseries}{{\thesubsection}}{0.6em}{}
+
+% ── document ────────────────────────────────────────────────────────────────
+\begin{document}
+
+\begin{center}
+    {\LARGE \textbf{Pre-Analysis Feasibility Assessment}}\\[6pt]
+    {\large in Bayesian Inference and Time Series Modelling}\\[10pt]
+    {\normalsize A practical guide for deciding whether a study is worth running}\\[4pt]
+    {\small \textit{Notes compiled from analysis of AR(1) variability inference in AGN X-ray light curves}}
+\end{center}
+
+\vspace{4pt}
+\noindent\rule{\linewidth}{0.8pt}
+\vspace{6pt}
+
+\tableofcontents
+\vspace{10pt}
+\noindent\rule{\linewidth}{0.4pt}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{The Core Principle: The Information Budget}
+
+Every inference problem, regardless of method, is fundamentally a question of whether the
+planned dataset contains enough \textit{information} to constrain the parameters of interest
+to the required precision.
+
+\begin{keybox}
+\textbf{Central question (ask this before collecting a single data point):}
+
+\medskip
+\textit{``Does my planned dataset have sufficient information content to answer my scientific
+question to the required precision?''}
+
+\medskip
+If the answer is no, no amount of computational sophistication --- Hamiltonian Monte Carlo,
+variational inference, or otherwise --- can compensate for missing information.
+\end{keybox}
+
+The information available in a dataset is set by three factors that must \emph{all} be
+satisfied simultaneously:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Quantity:} how many effectively independent measurements exist.
+    \item \textbf{Quality:} how precisely each measurement constrains the parameter of interest.
+    \item \textbf{Identifiability:} whether the parameter is uniquely determined by the data
+          at all, or whether it is degenerate with other parameters.
+\end{enumerate}
+
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{Time Series Analysis: the AR(1) Case}
+
+\subsection{Effective sample size is the only sample size that matters}
+
+For any correlated time series, the raw length $T$ is misleading as a measure of
+information content. Adjacent points are correlated, so they carry redundant information.
+For an AR(1) process $X_t = \phi\, X_{t-1} + \varepsilon_t$ with autocorrelation
+parameter $\phi = e^{-1/\tau}$, the effective number of statistically independent
+observations is:
+
+\begin{equation}
+    \boxed{
+        n_\mathrm{eff} = T \cdot \frac{1 - \phi}{1 + \phi}
+                       = T \cdot \frac{1 - e^{-1/\tau}}{1 + e^{-1/\tau}}
+    }
+    \label{eq:neff}
+\end{equation}
+
+This quantity is \textbf{fully computable before any analysis}, requiring only a prior
+belief (or order-of-magnitude estimate) of $\tau$.
+
+\medskip
+Table~\ref{tab:neff_examples} shows $n_\mathrm{eff}$ for three representative
+timescales with $T = 100$ steps, illustrating why inference quality degrades sharply
+as $\tau$ approaches or exceeds $T$.
+
+\begin{table}[h!]
+\centering
+\caption{Effective sample size for $T=100$ as a function of true timescale $\tau$.}
+\label{tab:neff_examples}
+\begin{tabular}{ccccc}
+\toprule
+True $\tau$ & $\phi = e^{-1/\tau}$ & $n_\mathrm{eff}$ & Correlation blocks & Inference quality \\
+\midrule
+$2$  & $0.607$ & $24.5$ & $\sim 50$ & Well constrained \\
+$38$ & $0.974$ & $1.3$  & $\sim 2.6$ & Barely constrained \\
+$50$ & $0.980$ & $1.0$  & $\sim 2$   & Essentially unconstrained \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Minimum time series length as a function of precision target}
+
+Using equation~\eqref{eq:neff} and the empirical rule that reliable estimation of
+a parameter requires $n_\mathrm{eff} \gtrsim 10$--$20$, we can invert to obtain the
+required time series length:
+
+\begin{equation}
+    T_\mathrm{min} \approx n_\mathrm{eff}^\mathrm{target} \cdot \frac{1 + e^{-1/\tau}}{1 - e^{-1/\tau}}
+    \approx n_\mathrm{eff}^\mathrm{target} \cdot 2\tau \quad (\text{for large } \tau)
+\end{equation}
+
+The practical rule of thumb expressed as a precision target on $\tau$ itself is:
+
+\begin{table}[h!]
+\centering
+\caption{Required time series length as a function of precision target on $\tau$.}
+\label{tab:Tmin}
+\begin{tabular}{lc}
+\toprule
+Precision goal on $\hat{\tau}$ & Required time series length \\
+\midrule
+Detect that $\tau$ is finite (exclude $\tau \to \infty$) & $T \gtrsim 3\tau$ \\
+Constrain $\tau$ to $\pm 50\%$ & $T \gtrsim 10\tau$ \\
+Constrain $\tau$ to $\pm 20\%$ & $T \gtrsim 50\tau$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{keybox}
+\textbf{Design implication:} Before observing, estimate the largest timescale $\tau_\mathrm{max}$
+you wish to measure. Ensure $T \gg \tau_\mathrm{max}$. If telescope or observing time
+constraints prevent this, accept that $\tau$ cannot be tightly constrained and adjust
+the scientific claim accordingly.
+\end{keybox}
+
+\subsection{Why more photons do not help when $T \lesssim \tau$}
+
+A crucial distinction arises between two types of uncertainty:
+
+\begin{enumerate}
+    \item \textbf{Photon noise (quality):} Insufficient photons per time step means
+    the spectrum cannot be fitted precisely. \emph{More photons directly help here.}
+
+    \item \textbf{Temporal structure (quantity):} When $T \lesssim \tau$, the
+    autocorrelation function has barely decayed over the full length of the time series.
+    Even with infinite photons per step, you are observing only one or two realizations
+    of the correlated process. \emph{More photons cannot substitute for more time steps.}
+\end{enumerate}
+
+Concretely, for $\tau = 50$ and $T = 100$, the full time series spans only two
+correlation lengths. A single unlucky realisation --- where the process happens to stay
+elevated for 70 steps then drop --- is statistically indistinguishable from $\tau = 200$
+or even $\tau \to \infty$. The posterior spans the entire prior range regardless of
+photon count.
+
+\subsection{The signal-to-noise floor and minimum detectable amplitude}
+
+Even if $n_\mathrm{eff}$ is adequate, the variability amplitude $\sigma$ of the
+process must exceed the measurement noise. The minimum detectable amplitude is
+approximately:
+
+\begin{equation}
+    \sigma_\mathrm{min} \sim \frac{\text{noise per step}}{\sqrt{n_\mathrm{eff}}}
+\end{equation}
+
+Both the quantity and quality constraints must be satisfied simultaneously.
+
+% -----------------------------------------------------------------------
+\subsection{Deriving $n_\mathrm{eff}$ from first principles}
+\label{subsec:neff_derivation}
+
+The formula in equation~\eqref{eq:neff} is not an empirical rule of thumb.
+It follows from a classical result in time series statistics.
+This section derives it carefully, starting from the only distributional assumption
+required.
+
+\subsubsection*{What distributional assumption is needed?}
+
+No assumption of Gaussianity is required.
+The derivation uses only \textbf{weak (second-order) stationarity}:
+\begin{align}
+    \mathrm{E}[X_t] &= \mu \quad \text{(constant mean)}, \\
+    \mathrm{Var}(X_t) &= \sigma^2 \quad \text{(constant marginal variance)}, \\
+    \mathrm{Cov}(X_t, X_{t+k}) &= \gamma(k) = \sigma^2\rho(k)
+        \quad \text{(covariance depends only on lag } k\text{)}.
+\end{align}
+The formula for $n_\mathrm{eff}$ holds for any weakly stationary process.
+Gaussianity is only required if you wish to make probability statements about the
+distribution of the sample mean $\bar{X}$ itself; the variance formula is
+purely a second-order (covariance) result.
+
+\subsubsection*{Why $\mathrm{Var}(\bar{X})$ and not $\mathrm{Var}(X)$?}
+
+$\mathrm{Var}(X_t) = \sigma^2$ is a fixed property of the process:
+the marginal spread of a single observation.
+It does not change with $T$ and carries no information about how precisely
+anything can be estimated from a sample of size $T$.
+
+$\mathrm{Var}(\bar{X})$ measures the \textbf{precision of the sample mean as an
+estimator of $\mu$}.
+This is what shrinks as $T$ grows, and the rate of shrinkage is the object that
+reveals how much independent information the correlated observations provide.
+More precisely, $n_\mathrm{eff}$ answers the question:
+\begin{quote}
+    \textit{How many i.i.d.\ draws would give the same estimation precision
+    as $T$ correlated draws?}
+\end{quote}
+Precision is measured by $\mathrm{Var}(\bar{X})$, not by $\mathrm{Var}(X)$.
+Hence $\mathrm{Var}(\bar{X})$ is the central object.
+
+\subsubsection*{Exact derivation}
+
+Define the sample mean:
+\begin{equation}
+    \bar{X} = \frac{1}{T}\sum_{t=1}^{T} X_t.
+\end{equation}
+Its variance expands as:
+\begin{equation}
+    \mathrm{Var}(\bar{X})
+    = \frac{1}{T^2}\,\mathrm{Var}\!\left(\sum_{t=1}^T X_t\right)
+    = \frac{1}{T^2}\sum_{t=1}^T\sum_{s=1}^T \mathrm{Cov}(X_t,\,X_s)
+    = \frac{1}{T^2}\sum_{t=1}^T\sum_{s=1}^T \gamma(|t-s|).
+\end{equation}
+Now count how many pairs $(t,s)$ share each lag value $k = |t-s|$:
+at lag $k=0$ there are $T$ pairs; at lag $k \geq 1$ there are $2(T-k)$ pairs.
+Therefore:
+\begin{equation}
+    \sum_{t=1}^T\sum_{s=1}^T \gamma(|t-s|)
+    = T\,\gamma(0) + 2\sum_{k=1}^{T-1}(T-k)\,\gamma(k).
+\end{equation}
+Dividing by $T^2$ and substituting $\gamma(0) = \sigma^2$,
+$\gamma(k) = \sigma^2\rho(k)$:
+\begin{equation}
+    \boxed{
+        \mathrm{Var}(\bar{X})
+        = \frac{\sigma^2}{T}\!\left[1 + 2\sum_{k=1}^{T-1}\!\left(1-\frac{k}{T}\right)\rho(k)\right].
+    }
+    \label{eq:var_xbar_exact}
+\end{equation}
+The factor $(1 - k/T)$ is the \textbf{Bartlett triangular taper} (Bartlett 1946):
+it arises because at lag $k$ only $T-k$ pairs are available, not $T$.
+
+\subsubsection*{Large-$T$ simplification and the integrated autocorrelation time}
+
+For large $T$, the term $k/T \to 0$ for all lags that contribute appreciably to the
+sum, so equation~\eqref{eq:var_xbar_exact} simplifies to:
+\begin{equation}
+    \mathrm{Var}(\bar{X}) \approx \frac{\sigma^2}{T}\!\left[1 + 2\sum_{k=1}^{\infty}\rho(k)\right]
+    = \frac{2\,\sigma^2\,\tau_\mathrm{int}}{T},
+\end{equation}
+where the \textbf{integrated autocorrelation time} is defined as:
+\begin{equation}
+    \tau_\mathrm{int} = \frac{1}{2} + \sum_{k=1}^{\infty}\rho(k).
+    \label{eq:tauint}
+\end{equation}
+The variance formula~\eqref{eq:var_xbar_exact} originates with Bartlett (1946).
+The integrated autocorrelation time $\tau_\mathrm{int}$ and the
+$n_\mathrm{eff} = T/(2\tau_\mathrm{int})$ terminology were established in the
+MCMC literature by Geyer (1992) and are the basis of the convergence diagnostics
+in Gelman et al.\ (2013).
+The analogous concept for correlated samples in survey sampling was introduced
+earlier by Kish (1965).
+
+\subsubsection*{Defining $n_\mathrm{eff}$ by comparison to i.i.d.\ data}
+
+For i.i.d.\ data, $\rho(k) = 0$ for $k \geq 1$, so
+$\mathrm{Var}(\bar{X})_\mathrm{iid} = \sigma^2 / n_\mathrm{eff}$.
+Setting this equal to the correlated result:
+\begin{equation}
+    \frac{\sigma^2}{n_\mathrm{eff}} = \frac{2\,\sigma^2\,\tau_\mathrm{int}}{T}
+    \quad\Longrightarrow\quad
+    \boxed{n_\mathrm{eff} = \frac{T}{2\,\tau_\mathrm{int}}}.
+    \label{eq:neff_tauint}
+\end{equation}
+
+\subsubsection*{Evaluating for AR(1)}
+
+For the AR(1) process, $\rho(k) = \phi^{|k|} = e^{-|k|/\tau}$.
+Summing the geometric series:
+\begin{equation}
+    \sum_{k=1}^{\infty} e^{-k/\tau}
+    = \frac{e^{-1/\tau}}{1 - e^{-1/\tau}}.
+\end{equation}
+So $\tau_\mathrm{int} = \frac{1}{2} + \frac{e^{-1/\tau}}{1-e^{-1/\tau}}
+= \frac{1}{1 - e^{-1/\tau}} - \frac{1}{2}$.
+After simplification, $n_\mathrm{eff}$ becomes:
+\begin{equation}
+    n_\mathrm{eff} = T \cdot \frac{1 - e^{-1/\tau}}{1 + e^{-1/\tau}},
+\end{equation}
+which is exactly equation~\eqref{eq:neff}.
+For large $\tau$, $e^{-1/\tau} \approx 1 - 1/\tau$, giving
+$n_\mathrm{eff} \approx T/(2\tau)$,
+and $\tau_\mathrm{int} \approx \tau$: the process timescale and the integrated
+autocorrelation time are the same object.
+
+% -----------------------------------------------------------------------
+\subsection{Connection to Fisher information and posterior width}
+\label{subsec:neff_fisher}
+
+The result $n_\mathrm{eff} \approx T/(2\tau)$ is not merely a precision bound on
+the sample mean.
+It directly controls the posterior width for $\tau$ itself, through the Fisher
+information.
+
+\subsubsection*{The Cram\'er--Rao bound and Bernstein--von Mises theorem}
+
+The Fisher information for parameter $\theta$ from a dataset of length $T$ is:
+\begin{equation}
+    \mathcal{I}_T(\theta)
+    = -\,\mathrm{E}\!\left[\frac{\partial^2 \ln p(\mathbf{X}\mid\theta)}{\partial\theta^2}\right].
+\end{equation}
+The \textbf{Cram\'er--Rao bound} states that for any unbiased estimator $\hat\theta$:
+\begin{equation}
+    \mathrm{Var}(\hat\theta) \geq \frac{1}{\mathcal{I}_T(\theta)}.
+\end{equation}
+The \textbf{Bernstein--von Mises theorem} states that for large $T$,
+regardless of the prior, the Bayesian posterior concentrates as:
+\begin{equation}
+    p(\theta \mid \mathbf{X}) \;\xrightarrow{T\to\infty}\;
+    \mathcal{N}\!\left(\hat\theta_\mathrm{MLE},\;\mathcal{I}_T(\theta)^{-1}\right).
+\end{equation}
+The posterior variance equals the Cram\'er--Rao bound.
+\textbf{Posterior width is therefore governed entirely by Fisher information.}
+
+\subsubsection*{Fisher information for $\phi$ in a Gaussian AR(1)}
+
+For a Gaussian AR(1), the conditional log-likelihood given $X_1$ is:
+\begin{equation}
+    \ln p(\mathbf{X}\mid\mu,\phi,\sigma^2)
+    = -\frac{T-1}{2}\ln\sigma^2
+    - \frac{1}{2\sigma^2}\sum_{t=2}^{T}\bigl[X_t - \mu - \phi(X_{t-1}-\mu)\bigr]^2.
+\end{equation}
+Taking the expected squared score with respect to $\phi$
+(and using the fact that innovations $V_t$ are independent of $X_{t-1}$):
+\begin{equation}
+    \mathcal{I}_T(\phi)
+    = \frac{1}{\sigma^2}\sum_{t=2}^{T}\mathrm{E}\bigl[(X_{t-1}-\mu)^2\bigr]
+    = \frac{T-1}{\sigma^2}\cdot\frac{\sigma^2}{1-\phi^2}
+    = \frac{T-1}{1-\phi^2}.
+    \label{eq:fisher_phi}
+\end{equation}
+This scales as $T$ because each innovation $V_t$ is genuinely i.i.d.,
+providing one independent piece of information about $\phi$ per time step.
+
+\subsubsection*{Fisher information for $\tau$ via the chain rule}
+
+Since $\phi = e^{-1/\tau}$, the chain rule gives:
+\begin{equation}
+    \mathcal{I}_T(\tau) = \mathcal{I}_T(\phi)\cdot\left(\frac{d\phi}{d\tau}\right)^{\!2},
+    \qquad \frac{d\phi}{d\tau} = \frac{e^{-1/\tau}}{\tau^2} = \frac{\phi}{\tau^2}.
+\end{equation}
+Substituting equation~\eqref{eq:fisher_phi}:
+\begin{equation}
+    \mathcal{I}_T(\tau)
+    = \frac{T-1}{1-\phi^2}\cdot\frac{\phi^2}{\tau^4}.
+\end{equation}
+In the large-$\tau$ limit ($\phi \to 1$),
+use $1-\phi^2 = (1-\phi)(1+\phi) \approx \frac{2}{\tau}$ and $\phi^2 \approx 1$:
+\begin{equation}
+    \boxed{
+        \mathcal{I}_T(\tau) \approx \frac{T}{2\tau^3}.
+    }
+    \label{eq:fisher_tau}
+\end{equation}
+
+\subsubsection*{Connecting $\mathcal{I}_T(\tau)$ to $n_\mathrm{eff}$}
+
+The Cram\'er--Rao lower bound on the relative precision of $\hat\tau$ is:
+\begin{equation}
+    \frac{\mathrm{std}(\hat\tau)}{\tau}
+    \geq \sqrt{\frac{1}{\tau^2\,\mathcal{I}_T(\tau)}}
+    = \sqrt{\frac{2\tau}{T}}
+    = \frac{1}{\sqrt{n_\mathrm{eff}}}.
+    \label{eq:crb_tau_neff}
+\end{equation}
+The \textbf{relative posterior width for $\tau$ is lower-bounded by
+$1/\sqrt{n_\mathrm{eff}}$}.
+This is the formal statement connecting the informational concept ($n_\mathrm{eff}$),
+the frequentist bound (Cram\'er--Rao), and the Bayesian posterior (Bernstein--von Mises)
+into a single inequality.
+
+For the case $\tau = 38$, $T = 100$: $n_\mathrm{eff} \approx 1.3$, so
+$\mathrm{std}(\hat\tau)/\tau \geq 0.88$.
+The standard deviation of the posterior for $\tau$ is nearly as large as $\tau$
+itself---a genuinely diffuse posterior, not a numerical artefact.
+
+\subsubsection*{Why $\mathcal{I}_T(\tau)$ is small: the reparameterisation cost}
+
+The Fisher information for $\phi$ scales as $T$---fast accumulation.
+But converting from $\phi$ (which lives near 1 for large $\tau$) to $\tau$ costs
+a factor of $(d\phi/d\tau)^2 = \phi^2/\tau^4 \approx \tau^{-4}$.
+Combining:
+\begin{equation}
+    \mathcal{I}_T(\tau)
+    = \underbrace{\frac{T-1}{1-\phi^2}}_{\displaystyle\text{info about }\phi}
+    \times
+    \underbrace{\frac{\phi^2}{\tau^4}}_{\displaystyle\text{reparameterisation cost}}.
+\end{equation}
+A unit change in $\tau$ at $\tau = 38$ corresponds to a change in $\phi$ of only
+$\phi/\tau^2 \approx 1/1444$.
+The data can detect changes in $\phi$ readily, but the map from $\phi$-precision to
+$\tau$-precision requires a large derivative---which is tiny when $\tau$ is large.
+Table~\ref{tab:fisher_tau} summarises the resulting bounds numerically.
+
+\begin{table}[h!]
+\centering
+\caption{Cram\'er--Rao lower bound on the relative standard deviation of $\hat\tau$
+         for $T = 100$ at three timescales, compared to the simulation results.}
+\label{tab:fisher_tau}
+\begin{tabular}{ccccc}
+\toprule
+$\tau$ & $n_\mathrm{eff}$ & CRB: $\mathrm{std}(\hat\tau)/\tau \geq$ &
+Posterior 5--95\% CI & CI width / $\tau$ \\
+\midrule
+$2$  & $24.5$ & $0.20$ & $[1.6,\;2.5]$    & $0.45$ \\
+$38$ & $1.3$  & $0.88$ & $[7.1,\;77.5]$   & $1.85$ \\
+$50$ & $1.0$  & $1.0$  & $[\lesssim 5,\;\gtrsim 60]$ & $>1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The full chain from $n_\mathrm{eff}$ to posterior width is:
+\begin{equation}
+    n_\mathrm{eff} = \frac{T}{2\tau}
+    \;\longrightarrow\;
+    \mathcal{I}_T(\tau) = \frac{n_\mathrm{eff}}{\tau^2}
+    \;\longrightarrow\;
+    \text{posterior std} \approx \frac{1}{\sqrt{\mathcal{I}_T(\tau)}}
+    = \frac{\tau}{\sqrt{n_\mathrm{eff}}}.
+\end{equation}
+When $n_\mathrm{eff} \ll 1$, $\mathcal{I}_T(\tau)$ is small, the CRB is large, and the
+posterior is wide.
+These are three descriptions of the same fact.
+
+% -----------------------------------------------------------------------
+\subsection{Statistical $n_\mathrm{eff}$ versus MCMC $n_\mathrm{eff}$}
+\label{subsec:neff_two_kinds}
+
+The term ``effective sample size'' appears in two completely different contexts in
+Bayesian computation.
+They measure different things, have different remedies, and must not be conflated.
+
+\begin{table}[h!]
+\centering
+\caption{The two senses of effective sample size.}
+\label{tab:neff_comparison}
+\begin{tabular}{p{3.5cm} p{5.5cm} p{5.5cm}}
+\toprule
+ & \textbf{Statistical $n_\mathrm{eff}$} & \textbf{MCMC $n_\mathrm{eff}$} \\
+\midrule
+\textbf{Question answered} &
+How much independent information does the observed data $\{C_t\}$ contain about
+the parameter of interest? &
+How many of the posterior draws produced by the sampler are effectively independent
+of each other? \\[6pt]
+\textbf{Determined by} &
+The autocorrelation structure of the process: $\tau$ and $T$ &
+The geometry of the posterior, step size, trajectory length, and sampler algorithm \\[6pt]
+\textbf{Formula} &
+$n_\mathrm{eff} = T/(2\tau_\mathrm{int})$ &
+$n_\mathrm{eff}^\mathrm{MCMC} = N_\mathrm{draws}/\bigl(1 + 2\sum_{k}\hat\rho_k^\mathrm{chain}\bigr)$ \\[6pt]
+\textbf{Fixed by} &
+Collecting more data (longer light curve, $T \gg \tau$) &
+Running more iterations, better step size, reparameterisation, better sampler \\[6pt]
+\textbf{Role in the AR(1) problem} &
+Sets the irreducible floor on how precisely $\tau$ can be estimated.
+No sampler can overcome an insufficiently small statistical $n_\mathrm{eff}$ &
+Reports how many independent posterior samples the chain has produced.
+NumPyro's \texttt{summary()} outputs this (e.g.\ $n_\mathrm{eff}^\mathrm{MCMC} = 1338$
+for $\hat\tau_{N_H}$ at $\tau=38$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{How they are connected through the posterior geometry}
+
+The AR(1) prior $p(\{X_t\} \mid \tau, \sigma)$ induces correlations between adjacent
+latent states $X_1, X_2, \ldots, X_T$.
+For large $\tau$, these correlations are strong: $X_1$ and $X_{50}$ still have
+correlation $e^{-50/38} \approx 0.27$.
+The 100 latent parameters $\{X_t\}$ do not span 100 independent directions in
+parameter space; they span a low-dimensional ridge with intrinsic dimension
+$\approx n_\mathrm{eff} \approx 1$--$2$.
+
+HMC must navigate this ridge.
+The leapfrog integrator's step size is constrained by the stiffest direction
+(across the ridge), while progress along the ridge is slow.
+This slows the \emph{MCMC} exploration of the posterior.
+At the same time, the statistical $n_\mathrm{eff} \approx 1.3$ means the posterior
+for $\tau$ is genuinely wide in the first place---even a perfect sampler with
+MCMC $n_\mathrm{eff} = \infty$ would recover the same wide credible interval.
+
+The same physical structure---long $\tau$ relative to $T$---therefore creates
+problems for \emph{both} information content and sampler geometry, but through
+entirely different mechanisms.
+
+\subsubsection*{A concrete illustration for the AGN problem}
+
+At $\tau = 38$, $T = 100$:
+\begin{itemize}[noitemsep]
+    \item Statistical $n_\mathrm{eff} \approx 1.3$: the data contain fewer than
+          two independent correlation lengths.
+          The Fisher information bound gives
+          $\mathrm{std}(\hat\tau)/\tau \geq 0.88$: the posterior
+          \emph{must} be wide, by physics.
+    \item MCMC $n_\mathrm{eff}^\mathrm{MCMC} = 1338$ (from NumPyro \texttt{summary()}
+          after 6000 draws): the sampler is mapping the posterior well, producing
+          1338 effectively independent draws of the wide posterior.
+\end{itemize}
+Running ten times more HMC iterations would improve MCMC $n_\mathrm{eff}$ to
+$\sim 13\,000$ but would \emph{not} narrow the posterior, because the statistical
+$n_\mathrm{eff}$ is not changed by better sampling.
+The width of the posterior is a property of the data, not the computer.
+
+\begin{keybox}
+\textbf{One-sentence summary:}
+\emph{Statistical $n_\mathrm{eff}$ limits what you can know;
+MCMC $n_\mathrm{eff}$ limits how well your computer finds it.}
+
+\smallskip
+A wide posterior for $\tau$ at $T/\tau \lesssim 2$ is not a computational failure.
+It is the correct answer: the data do not contain enough information to pin $\tau$,
+and the posterior is faithfully reporting that fact.
+The remedy is a longer observation campaign, not a more sophisticated sampler.
+\end{keybox}
+
+% -----------------------------------------------------------------------
+\subsection{Conceptual interpretation: what does a dependent observation contribute?}
+\label{subsec:neff_conceptual}
+
+The mathematics of $n_\mathrm{eff}$ and Fisher information establish that the precision
+of any estimator of $\tau$ is bounded by $1/\sqrt{n_\mathrm{eff}}$, regardless of
+whether the method is Bayesian posterior inference, maximum likelihood estimation,
+or least squares.
+This universality deserves a direct conceptual explanation.
+
+\subsubsection*{The principle is method-independent}
+
+The Cram\'er--Rao bound is a property of the \emph{likelihood function}, not of the
+estimation method.
+It says: no matter what you do with the data --- Bayesian posterior, MLE, least
+squares, method of moments --- you cannot extract more precision about a parameter
+than the Fisher information allows.
+The method determines how close you get to the bound
+(MLE achieves it asymptotically; Bayesian posteriors achieve it via
+Bernstein--von Mises; ordinary least squares achieves it only for Gaussian linear
+models), but the bound itself is set by the data alone.
+\textbf{Every method faces the same information floor, set by $n_\mathrm{eff}$.}
+
+\subsubsection*{Decomposing a dependent observation}
+
+An observation $X_t$ in an AR(1) process can be split into two parts:
+\begin{equation}
+    X_t
+    = \underbrace{\mu + \phi\,(X_{t-1} - \mu)}_{\text{predictable from past}}
+    + \underbrace{V_t}_{\text{genuinely new information}}.
+\end{equation}
+The first part is perfectly determined by $X_{t-1}$ and the model parameters.
+If you already know $X_{t-1}$ and $\phi$, this part adds \emph{zero} new information.
+The second part --- the innovation $V_t \sim \mathcal{N}(0, \sigma^2)$ --- is
+genuinely independent of everything that came before.
+This is the new information in $X_t$.
+
+Each time step therefore contributes exactly \textbf{one independent innovation}
+to the dataset.
+Over $T$ steps there are $T-1$ independent innovations, which is why
+$\mathcal{I}_T(\phi) \propto T$: each innovation is one truly independent piece of
+information about the conditional structure of the process.
+
+\subsubsection*{Why $\tau$ requires more than innovations}
+
+Knowing $\phi$ precisely is not the same as knowing $\tau$ precisely.
+$\tau$ is not a property of individual innovations.
+It is a property of the \textbf{rate at which the correlation between $X_t$ and
+$X_{t-k}$ decays as a function of lag $k$}.
+To measure a decay rate, you need to observe the process evolve through multiple
+full correlation lengths: you need to see the process start somewhere, return to near
+its mean, start again, and so on.
+
+Each time the process completes one full correlation length, you obtain one
+approximately independent \emph{realisation of the autocorrelation decay pattern} ---
+one data point about $\tau$.
+With $T = 100$ and $\tau = 38$, the process completes approximately $T/(2\tau)
+\approx 1.3$ such cycles.
+You have 1.3 independent observations of the decay pattern.
+You cannot reliably fit an exponential decay curve to a single observation.
+
+\subsubsection*{Which parameters benefit from which level of information}
+
+The distinction between innovation-level and cycle-level information separates
+parameters that are easy to constrain from those that are hard:
+
+\begin{table}[h!]
+\centering
+\caption{Information source and scaling for each AR(1) parameter.
+         Innovation-level parameters are constrained by every time step;
+         timescale parameters require completed correlation cycles.}
+\label{tab:info_levels}
+\begin{tabular}{llll}
+\toprule
+Parameter & What provides information & Source & Scales as \\
+\midrule
+$\phi$ (AR coefficient) & Each innovation $V_t$ & 1 per step, i.i.d. & $T$ \\
+$\sigma$ (innovation std) & Variance of innovations & 1 per step & $T$ \\
+$\tau$ (timescale) & Each completed correlation cycle & 1 per $2\tau$ steps & $T/(2\tau) = n_\mathrm{eff}$ \\
+$\mu$ (long-run mean) & Level of the process & $n_\mathrm{eff}$ per series & $n_\mathrm{eff}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This explains the asymmetry in your simulation results: $\sigma_\tau$ is recovered
+well across nearly all combinations (it uses innovation-level information, scales
+with $T$), while $\tau$ itself is poorly constrained at large values (it requires
+cycle-level information, scales with $n_\mathrm{eff}$).
+Both are estimated from the \emph{same data}, but from \emph{different levels of
+that data}.
+
+\subsubsection*{Dependent observations are not uniformly useless}
+
+The dependent part of $X_t$ --- the part predictable from $X_{t-1}$ --- is not
+useless for \emph{all} parameters.
+Its usefulness depends on what the parameter controls:
+
+\begin{itemize}[noitemsep]
+    \item For $\phi$ and $\sigma$: the dependent (predictable) part adds nothing,
+          because all information about the conditional structure is already in the
+          innovations.
+    \item For $\mu$: the predictable part contributes, because $\mu$ determines
+          where the process tends to return to.
+          However, this is still limited by $n_\mathrm{eff}$, because correlated
+          observations of the long-run level are redundant with each other.
+    \item For $\tau$: the predictable part contributes only via the aggregate
+          pattern over many cycles.
+          The \emph{sequence} of predictable parts encodes the temporal correlation
+          structure, but extracting the decay rate requires $n_\mathrm{eff}$ independent
+          cycles.
+\end{itemize}
+
+The general principle is: \textbf{a dependent observation contributes new information
+on parameter $\theta$ only to the extent that the predictable part of the observation
+tells you something about $\theta$ that you did not already know.}
+For parameters controlling innovation-level structure, the predictable part is
+redundant and the dependent observation contributes nothing beyond the innovation.
+For parameters controlling temporal scale, the dependent part contributes but only
+weakly, in proportion to $n_\mathrm{eff}$.
+
+\begin{keybox}
+\textbf{Connecting $n_\mathrm{eff}$ to independence, conceptually.}
+
+\smallskip
+Each observation in a correlated time series can be split into a predictable part
+(carrying no new information) and an innovation (genuinely independent).
+$n_\mathrm{eff}$ counts how many of those innovations are independent \emph{for the
+purpose of estimating the parameter of interest}.
+For timescale parameters like $\tau$, the relevant unit of independence is not an
+individual innovation but a full correlation cycle --- of which there are only
+$T/(2\tau)$ in a series of length $T$.
+This is why the variance of $\hat\tau$ scales as $\tau^2/n_\mathrm{eff}$ and not as
+$\tau^2/T$: the parameter $\tau$ is informed by cycle-level, not
+innovation-level, information.
+\end{keybox}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{General Multivariate Analysis}
+
+The same principles extend beyond time series to any regression, hierarchical model,
+or multi-parameter inference problem.
+
+\subsection{The Fisher information matrix: the universal pre-analysis tool}
+
+For any parametric model with parameter vector $\boldsymbol{\theta}$, the
+\textbf{Cram\'er--Rao lower bound} sets the minimum variance achievable by any
+unbiased estimator:
+
+\begin{equation}
+    \mathrm{Var}(\hat{\theta}_i) \geq \left[\mathcal{I}(\boldsymbol{\theta})^{-1}\right]_{ii}
+\end{equation}
+
+where $\mathcal{I}(\boldsymbol{\theta})$ is the \textbf{Fisher information matrix}
+(FIM), with entries:
+
+\begin{equation}
+    \mathcal{I}_{ij}(\boldsymbol{\theta}) = -\,\mathbb{E}\!\left[
+        \frac{\partial^2 \log p(\mathbf{x} \mid \boldsymbol{\theta})}{\partial \theta_i \,\partial \theta_j}
+    \right]
+\end{equation}
+
+The FIM can be computed \textbf{analytically or numerically before collecting any data},
+given only:
+\begin{itemize}[noitemsep]
+    \item the assumed generative model,
+    \item a prior belief about the true parameter values,
+    \item the planned data size and quality (e.g., expected photon counts, sample size).
+\end{itemize}
+
+The diagonal of $\mathcal{I}^{-1}$ gives the \emph{best-case} uncertainty on each
+parameter. If this best-case exceeds your scientific precision requirement, no
+inference method will achieve it --- you need more or better data.
+
+\subsection{Parameter identifiability and degeneracies}
+
+Before running inference, verify that each parameter is \textbf{identifiable}: that
+different values of $\theta_i$ produce genuinely different observable predictions.
+Non-identifiability manifests as:
+
+\begin{itemize}[noitemsep]
+    \item A near-singular FIM (very large condition number $\kappa(\mathcal{I})$).
+    \item Posterior distributions that are nearly identical to the prior, regardless
+          of data size.
+    \item Strong correlations between parameters in the posterior.
+\end{itemize}
+
+\textbf{Practical example from X-ray spectroscopy:}
+Column density $N_H$ and photon index normalization $K$ both affect spectral shape.
+At low count rates, their effects are degenerate: the FIM is nearly singular in the
+$N_H$--$K$ direction, meaning no finite dataset can disentangle them. This degeneracy
+is detectable in advance by inspecting off-diagonal FIM elements or by computing
+predicted posterior contours analytically.
+
+\subsection{The prior-dominated versus likelihood-dominated diagnostic}
+
+A simple pre-analysis diagnostic: compute the ratio of the \emph{expected} posterior
+width to the prior width for each parameter:
+
+\begin{equation}
+    r_i = \frac{\sigma_\mathrm{posterior, \, expected}^{(i)}}{\sigma_\mathrm{prior}^{(i)}}
+\end{equation}
+
+\begin{itemize}[noitemsep]
+    \item $r_i \ll 1$: the data are informative; the posterior is substantially
+          narrower than the prior. \textbf{Good.}
+    \item $r_i \approx 1$: the data are essentially uninformative; the posterior
+          echoes the prior. The parameter is unresolvable with this dataset.
+\end{itemize}
+
+If $r_i \approx 1$ for a parameter you care about, you must either increase data
+quality/quantity, impose an external constraint (tighter prior), or drop that
+parameter as a free variable.
+
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{Pre-Analysis Feasibility Checklist}
+
+Work through the following questions \textit{before} designing the observation campaign,
+collecting data, or running any MCMC sampler.
+
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=*, itemsep=6pt]
+
+    \item \textbf{Identifiability}
+    \begin{itemize}[noitemsep]
+        \item Can each parameter be uniquely determined in principle, even with infinite data?
+        \item Are there degeneracies that require auxiliary data or stronger priors to break?
+        \item Compute or inspect off-diagonal elements of the expected FIM for large
+              cross-correlations.
+    \end{itemize}
+
+    \item \textbf{Effective data volume}
+    \begin{itemize}[noitemsep]
+        \item For time series: compute $n_\mathrm{eff}$ via equation~\eqref{eq:neff}
+              for the worst-case $\tau$ you wish to constrain. Require $n_\mathrm{eff} \gtrsim 10$.
+        \item For independent observations: require $N \gg p$ (number of data points
+              much larger than the number of free parameters; a factor of 10--20$\times$
+              is a practical minimum).
+        \item If the effective data volume is insufficient, determine how much more data
+              is needed \textit{before} beginning the study.
+    \end{itemize}
+
+    \item \textbf{Signal detectability}
+    \begin{itemize}[noitemsep]
+        \item Compute the expected signal-to-noise ratio (SNR) for each parameter of
+              interest: $\mathrm{SNR}_i \sim \Delta\hat{\theta}_i / \sigma_\mathrm{noise}$.
+        \item If $\mathrm{SNR} < 3$--$5$ for a key parameter, either increase the
+              sensitivity, fix that parameter to its expected value, or adopt an
+              informative prior.
+    \end{itemize}
+
+    \item \textbf{Cram\'{e}r--Rao / Fisher information budget}
+    \begin{itemize}[noitemsep]
+        \item Evaluate $\mathcal{I}(\boldsymbol{\theta})$ at expected true parameter values.
+        \item Check whether $\left[\mathcal{I}^{-1}\right]_{ii}^{1/2}$ meets the precision
+              target for each parameter.
+        \item If not: increase $N$ (more observations), improve quality (reduce noise),
+              or relax the precision requirement.
+    \end{itemize}
+
+    \item \textbf{Prior sensitivity}
+    \begin{itemize}[noitemsep]
+        \item Estimate the expected ratio $r_i = \sigma_\mathrm{post} / \sigma_\mathrm{prior}$
+              for each parameter.
+        \item Any parameter with $r_i \gtrsim 0.7$ will be largely prior-driven.
+              Be explicit about this in the analysis and interpretation.
+    \end{itemize}
+
+    \item \textbf{Computational feasibility}
+    \begin{itemize}[noitemsep]
+        \item Given the data volume established in steps 1--4, verify that the chosen
+              sampler (HMC, NUTS, etc.) is tractable.
+        \item For HMC, mixing time scales with the autocorrelation length of the
+              posterior. Long-$\tau$ or degenerate posteriors require longer chains
+              and more warmup steps.
+        \item If the dataset size needed for statistical power makes the sampler
+              intractable, consider approximate methods (variational inference,
+              likelihood emulation, neural posterior estimation).
+    \end{itemize}
+
+\end{enumerate}
+
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{Summary}
+
+\begin{keybox}
+Before running any analysis, compute how many effectively independent, informative
+constraints your data contain on each parameter of interest. If that number is
+substantially below $\sim$10--20 per free parameter, the posterior will be dominated
+by prior assumptions rather than data, and no computational method can remedy this.
+
+\medskip
+The tools for this pre-analysis --- the Fisher information matrix, effective sample
+size formulas, and signal-to-noise estimates --- are analytical and inexpensive.
+They constitute a \textbf{feasibility filter}: run them first, before committing
+telescope time, observing resources, or HMC compute, and they will tell you whether
+the experiment is worth running and precisely what quality and quantity of data is
+required.
+
+\medskip
+This principle holds universally: for time series analysis (where $n_\mathrm{eff}$
+replaces $N$), for spectral fitting (where the FIM measures how distinguishable
+two spectral models are), and for any regression or hierarchical model where the
+number of free parameters risks exceeding the information content of the data.
+\end{keybox}
+
+\vspace{12pt}
+\noindent\rule{\linewidth}{0.4pt}
+{\small
+\noindent\textbf{Context.} These notes were developed in the context of Hamiltonian Monte Carlo
+inference of AGN X-ray variability, modelling column density $N_H$ and normalisation $\phi$
+as AR(1) stochastic processes with correlation timescale $\tau$ and amplitude $\sigma$.
+The effective sample size analysis in Section~2 directly explains why $\hat{\tau}$ is
+well-constrained for $\tau = 2$ steps ($n_\mathrm{eff} \approx 25$) but poorly constrained
+for $\tau = 38$ or $\tau = 50$ steps ($n_\mathrm{eff} \approx 1$) when the total
+time series length is $T = 100$ steps.
+}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\appendix
+\section{Why the Spectral Normalisation $K$ Is Well-Identified Even at Low Photon Counts}
+\label{app:K_snr}
+
+This appendix explains a practically important asymmetry: while parameters such as
+column density $N_H$ or correlation timescale $\tau$ can be extremely hard to constrain
+with modest data, the spectral normalisation $K$ (equivalently, the log-normalisation
+$\phi$) is well-identified even with a few hundred photons per spectrum.
+Understanding \emph{why} guards against mistakenly applying the same low-data caution
+uniformly to all parameters.
+
+\subsection*{How $K$ enters the observed counts}
+
+The expected photon count in energy channel $i$ is:
+\begin{equation}
+    \lambda_i = K \cdot f_i,
+\end{equation}
+where $f_i$ absorbs the instrument response, effective area, absorption, and
+power-law spectral shape at channel $i$. Crucially, $K$ is a \textbf{pure
+multiplicative prefactor} that scales every channel by exactly the same factor
+simultaneously. It does not change the spectral shape; it only changes the amplitude.
+
+\subsection*{The total count is a sufficient statistic for $K$}
+
+Summing over all energy channels:
+\begin{equation}
+    C = \sum_i \lambda_i = K \cdot \sum_i f_i = K \cdot F_\mathrm{total},
+\end{equation}
+where $F_\mathrm{total}$ is a constant (determined by the spectral model and instrument
+response, not by $K$). Therefore $C \propto K$ exactly, and the \textbf{total photon
+count $C$ alone is a sufficient statistic for $K$}. No spectral shape information is
+required.
+
+\subsection*{The signal-to-noise argument}
+
+Since $C$ is a sum of independent Poisson random variables, it is itself Poisson with
+mean $K \cdot F_\mathrm{total}$. The standard deviation of $C$ is $\sqrt{C}$, giving
+a relative uncertainty:
+
+\begin{equation}
+    \boxed{
+        \frac{\sigma_K}{K} = \frac{\sigma_C}{C} = \frac{\sqrt{C}}{C} = \frac{1}{\sqrt{C}}
+    }
+\end{equation}
+
+\medskip
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Total photons $C$ & Relative uncertainty on $K$ & Practical precision \\
+\midrule
+$100$  & $10\%$ & Well measurable \\
+$400$  & $5\%$  & Well measurable \\
+$1000$ & $3\%$  & Well measurable \\
+\bottomrule
+\end{tabular}
+\end{center}
+\medskip
+
+Even $C = 100$ photons yields a 10\% relative uncertainty on $K$, which is entirely
+adequate for most scientific purposes.
+
+\subsection*{Why the signal is unambiguous}
+
+The word ``unambiguous'' refers to the absence of degeneracy. Consider the effect of each
+spectral parameter on the observed counts:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{$K$:} scales every channel by the same factor.
+        Effect: uniform vertical shift in the count spectrum.
+    \item \textbf{$N_H$:} appears in the exponent $\exp(-N_H \cdot \sigma(E))$,
+        preferentially suppressing low-energy channels.
+        Effect: energy-dependent tilt of the count spectrum, strongest at soft X-rays.
+    \item \textbf{$\Gamma$:} changes the power-law slope,
+        differentially redistributing counts between low and high energies.
+        Effect: energy-dependent tilt of a different form.
+\end{itemize}
+
+Only $K$ moves all channels simultaneously and proportionally. Its signature cannot be
+reproduced by any combination of $N_H$ and $\Gamma$, because those parameters
+necessarily change the \emph{shape} while $K$ only changes the \emph{amplitude}. This
+geometric separability means $K$ is identifiable from the total count alone, with no
+need to resolve the spectral shape at all.
+
+\subsection*{Fisher information for $N_H$: formal derivation and self-limiting behaviour}
+
+Unlike $K$, the column density $N_H$ enters the spectrum nonlinearly through an
+exponential absorption factor, and a Poisson-variance argument on the total count
+is no longer sufficient. A full Fisher information analysis is needed, and it
+reveals a fundamental asymmetry between $K$ and $N_H$.
+
+The expected count in energy channel $i$ under the absorbed power-law model is:
+\begin{equation}
+    \lambda_i = K \cdot g_i \cdot \exp\!\bigl(-N_H\,\sigma(E_i)\bigr),
+\end{equation}
+where $g_i$ encodes the instrument response and power-law spectral shape, and
+$\sigma(E_i)$ is the photoelectric absorption cross-section.
+In the soft X-ray band ($E \lesssim 2\,\mathrm{keV}$), $\sigma(E) \propto E^{-3}$:
+only low-energy channels carry appreciable absorption signal.
+
+Differentiating, $\partial\lambda_i/\partial N_H = -\lambda_i\,\sigma(E_i)$.
+The Fisher information contributed by Poisson channel $i$ is:
+\begin{equation}
+    \mathcal{I}_i(N_H)
+    = \frac{1}{\lambda_i}\!\left(\frac{\partial\lambda_i}{\partial N_H}\right)^{\!2}
+    = \lambda_i\,\sigma(E_i)^2.
+\end{equation}
+Summing over all channels:
+\begin{equation}
+    \boxed{
+        \mathcal{I}(N_H) = \sum_i \lambda_i\,\sigma(E_i)^2
+    }
+    \label{eq:fisher_NH}
+\end{equation}
+For comparison, the same derivation applied to $K$ (using
+$\partial\lambda_i/\partial K = \lambda_i/K$) gives:
+\begin{equation}
+    \mathcal{I}(K) = \sum_i \frac{\lambda_i}{K^2} = \frac{C}{K^2},
+    \label{eq:fisher_K_formal}
+\end{equation}
+recovering the earlier result $\sigma_K/K = 1/\sqrt{C}$ via the Cram\'er--Rao bound.
+Whereas every photon contributes equally to $\mathcal{I}(K)$, each channel's
+contribution to $\mathcal{I}(N_H)$ is weighted by $\sigma(E_i)^2$: only soft-band
+channels carry $N_H$ information.
+
+This leads directly to a self-limiting behaviour. The soft-band channels with the
+largest $\sigma(E_i)$ --- and hence the largest potential contribution to
+$\mathcal{I}(N_H)$ in equation~\eqref{eq:fisher_NH} --- are suppressed by the same
+exponential factor $\exp(-N_H\,\sigma(E_i))$ appearing in $\lambda_i$ itself.
+As $N_H$ increases:
+\begin{equation}
+    \mathcal{I}_i(N_H) = \lambda_i\,\sigma(E_i)^2
+    \;\propto\; e^{-N_H\,\sigma(E_i)}\,\sigma(E_i)^2
+    \;\xrightarrow{\;N_H\to\infty\;}\; 0.
+\end{equation}
+The photons most informative about $N_H$ are precisely those most absorbed by it.
+Hard X-ray channels avoid this self-suppression but have $\sigma(E_i)^2 \approx 0$,
+contributing negligibly to $\mathcal{I}(N_H)$.
+The total Fisher information therefore decreases with increasing $N_H$, causing the
+Cram\'er--Rao lower bound $\sigma_{N_H} \geq 1/\sqrt{\mathcal{I}(N_H)}$ to grow.
+This is why $N_H$ recovery degrades at high column densities in the simulation grid,
+while $K$ and $\phi$ --- governed by $\mathcal{I}(K) = C/K^2$, which improves with
+every photon --- remain well-identified throughout.
+
+
+% -----------------------------------------------------------------------
+\subsection*{Four levels of uncertainty in the state-space model}
+
+To understand what the per-step $10\%$--$5\%$ precision on $K_t$ implies for recovery
+of the AR(1) parameters, it is essential to separate four conceptually distinct
+uncertainty levels that are easily conflated.
+
+\begin{enumerate}[leftmargin=*, itemsep=8pt]
+
+\item \textbf{Poisson measurement noise (Level 1).}
+At each time step $t$, the total photon count $C_t$ fluctuates as
+$\mathrm{Poisson}(K_t F_\mathrm{total})$, with standard deviation $\sqrt{C_t}$.
+This gives a per-step relative uncertainty on $K_t$:
+\begin{equation}
+    \frac{\sigma_{K_t}}{K_t} = \frac{1}{\sqrt{C_t}}
+    \qquad\bigl(10\%\;\text{at}\;C_t = 100;\;5\%\;\text{at}\;C_t = 400\bigr).
+\end{equation}
+This is irreducible instrumental noise, reducible only by increasing the photon count
+(longer exposures or brighter sources).
+
+\item \textbf{Process innovation $\sigma$ (Level 2).}
+The latent process evolves according to:
+\begin{equation}
+    K_t = \mu + \phi\,(K_{t-1} - \mu) + \varepsilon_t,
+    \qquad \varepsilon_t \sim \mathcal{N}(0,\,\sigma^2).
+\end{equation}
+Here $\sigma$ is the standard deviation of the random innovation at each step:
+genuine stochastic variability intrinsic to the source, independent of the instrument.
+$\sigma$ would persist even with infinitely many photons per step, because it
+represents true physical fluctuations in $K_t$.
+It is entirely distinct from Level~1 noise, and is the primary physical parameter
+of interest (together with $\tau$).
+
+\item \textbf{One-step conditional variance (Level 3).}
+Given $K_{t-1}$, the conditional variance of the next state is
+$\mathrm{Var}(K_t \mid K_{t-1}) = \sigma^2$,
+identical to the innovation variance of Level~2.
+This sets the scale of step-to-step fluctuations: even with perfect knowledge of
+$K_{t-1}$ and $\phi$, the next value $K_t$ is uncertain by $\sim\!\sigma$.
+The condition for the AR(1) signal to be distinguishable from photon noise is
+therefore $\sigma \gg K/\sqrt{C}$ (Level~2 $\gg$ Level~1).
+
+\item \textbf{Stationary (marginal) variance (Level 4).}
+After many correlated steps, the unconditional variance of $K_t$ at stationarity is:
+\begin{equation}
+    \sigma_\mathrm{stat}^2 = \frac{\sigma^2}{1 - \phi^2}.
+    \label{eq:sigma_stat}
+\end{equation}
+For $\phi$ close to 1 (large $\tau$), small per-step innovations accumulate into large
+correlated excursions: $\sigma_\mathrm{stat} \gg \sigma$.
+This is the amplitude of variability visible in the light curve.
+For the AR(1) process to be detectable above the photon noise floor:
+\begin{equation}
+    \sigma_\mathrm{stat} = \frac{\sigma}{\sqrt{1-\phi^2}} \gg \frac{K}{\sqrt{C}}.
+    \label{eq:detectability_cond}
+\end{equation}
+
+\end{enumerate}
+
+
+% -----------------------------------------------------------------------
+\subsection*{The full inference chain: from photon counts to $\tau$ and $\sigma$}
+
+The four uncertainty levels connect in a chain that carries information from raw
+photon counts all the way to the posterior distributions of $\tau$ and $\sigma$.
+
+\medskip
+\noindent\textbf{Step 1: Photons $\to$ per-step posterior on $K_t$
+\emph{(Level~1 noise enters here)}.}
+At each step $t$, the Fisher information $\mathcal{I}(K_t) = C_t/K_t^2$
+(equation~\eqref{eq:fisher_K_formal}) sets the per-step posterior width:
+$\sigma_{K_t} \approx K_t/\sqrt{C_t}$.
+HMC infers all $T$ latent states $\{K_t\}$ simultaneously, with the AR(1) prior
+acting as a Bayesian filter that smooths adjacent estimates using the temporal
+correlation structure encoded by $\phi$ and $\sigma$.
+
+\medskip
+\noindent\textbf{Step 2: Per-step posteriors $\to$ AR(1) trajectory
+\emph{(Levels~1 and~4 interact)}.}
+The posterior-mean sequence $\{\hat K_t\}$ reconstructs the true AR(1) trajectory.
+For this reconstruction to be faithful, the AR(1) signal (Level~4) must stand above
+the photon noise (Level~1).
+The relevant ratio is:
+\begin{equation}
+    \mathrm{SNR}_\mathrm{tracking}
+    = \frac{\sigma_\mathrm{stat}}{K/\sqrt{C}}
+    = \frac{\sigma}{\sqrt{1-\phi^2}}\cdot\frac{\sqrt{C}}{K}.
+\end{equation}
+When this ratio is large, individual step estimates $\hat K_t$ lie close to the true
+values and the trajectory is reliably recovered.
+When it approaches unity, measurement noise dominates and the reconstructed trajectory
+carries little signal.
+
+\medskip
+\noindent\textbf{Step 3: Trajectory $\to$ $\phi$ (and hence $\tau$)
+\emph{($n_\mathrm{eff}$ governs, not $C$)}.}
+The autocorrelation parameter $\phi = \exp(-1/\tau)$ is estimated from the temporal
+covariance structure of $\{\hat K_t\}$.
+Precision is governed by the effective sample size
+$n_\mathrm{eff} = T(1-\phi)/(1+\phi)$, \emph{not} by the photon count $C$.
+For $\tau = 2$ and $T = 100$: $n_\mathrm{eff} \approx 25$, and $\phi$ is well-constrained.
+For $\tau = 50$ and $T = 100$: $n_\mathrm{eff} \approx 1$, and $\tau$ is essentially
+unconstrained regardless of how many photons are collected per step
+(see Table~\ref{tab:neff_examples}).
+Increasing the photon count improves the per-step trajectory reconstruction (Step~2)
+but cannot substitute for insufficient temporal coverage.
+
+\medskip
+\noindent\textbf{Step 4: Trajectory and $\phi$ $\to$ $\sigma$
+\emph{(Levels~1 and~2 must be separated)}.}
+With $\phi$ estimated, $\sigma$ is inferred from the variance of the AR(1) residuals:
+\begin{equation}
+    \hat\sigma^2 \approx \frac{1}{T}\sum_{t=2}^{T}
+    \bigl(K_t - \hat\mu - \hat\phi\,(K_{t-1} - \hat\mu)\bigr)^2.
+\end{equation}
+The precision of $\hat\sigma$ scales as $\sigma/\sqrt{n_\mathrm{eff}}$.
+Beyond precision, a lower bound on detectable $\sigma$ is also set by Level~1:
+if $\sigma \lesssim K/\sqrt{C}$, photon fluctuations are indistinguishable from
+process variability, inflating $\hat\sigma$ above its true value.
+The requirement $\sigma \gg K/\sqrt{C}$ (equation~\eqref{eq:detectability_cond}) is
+therefore a necessary precondition for reliable $\sigma$ recovery.
+
+\medskip
+\noindent\textbf{Closing the chain.}
+The $10\%$ per-step photon noise (100 photons) defines the noise floor that the
+physical variability amplitude must clear.
+Whether it does so depends on the stationary amplitude $\sigma/\sqrt{1-\phi^2}$
+relative to $K/\sqrt{C}$.
+Once cleared, HMC jointly infers all $T$ latent states and both AR(1) hyperparameters
+in a single probabilistic model, correctly propagating Level~1 measurement noise
+through to the Level~2 and Level~4 uncertainties in $\sigma$ and $\tau$.
+The $10\%$--$5\%$ SNR result thus defines the \emph{minimum required physical
+variability amplitude}, not merely a precision target for individual spectral fits.
+
+\begin{keybox}
+\textbf{Pre-analysis implications.}
+
+\smallskip
+\begin{itemize}[noitemsep]
+    \item \textbf{$K$ vs.\ $N_H$ asymmetry:}
+    All photons contribute equally to $\mathcal{I}(K) = C/K^2$, giving
+    $\sigma_K/K = 1/\sqrt{C}$ at any energy.
+    For $N_H$, only soft-band photons contribute to $\mathcal{I}(N_H)$, and those
+    photons are self-suppressed by absorption at high column densities.
+    Assess each parameter separately via its own Fisher information channel.
+
+    \item \textbf{Four uncertainty levels:}
+    Always distinguish (1)~Poisson measurement noise $\sim 1/\sqrt{C}$ per step,
+    (2)~AR(1) innovation $\sigma$, (3)~one-step conditional variance $= \sigma^2$,
+    and (4)~stationary variance $\sigma^2/(1-\phi^2)$.
+    Reliable AR(1) recovery requires Level~1 $\ll$ Level~2; detectable variability
+    requires Level~4 $\gg$ Level~1.
+
+    \item \textbf{Noise floor vs.\ variability amplitude:}
+    The $10\%$--$5\%$ per-step SNR sets the noise floor for tracking the latent
+    time series.
+    For AR(1) parameters to be recoverable, the stationary amplitude
+    $\sigma/\sqrt{1-\phi^2}$ must substantially exceed $K/\sqrt{C}$.
+    $\tau$ recovery is then further limited by effective sample size $n_\mathrm{eff}$,
+    independently of photon count.
+\end{itemize}
+\end{keybox}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{The Cram\'er--Rao bound: what it is and what it requires}
+\label{sec:cramer_rao}
+
+\paragraph{What it is.}
+The \textbf{Cram\'er--Rao Lower Bound} (CRLB) is a \emph{theorem} in mathematical
+statistics, proved independently by C.R.~Rao (1945) and Harald~Cram\'er (1946).
+It states that for any unbiased estimator $\hat\theta$ of a parameter $\theta$,
+
+\begin{equation}
+    \mathrm{Var}(\hat\theta) \;\geq\; \frac{1}{\mathcal{I}_T(\theta)},
+    \label{eq:crlb}
+\end{equation}
+
+where $\mathcal{I}_T(\theta)$ is the total Fisher information in the sample.
+The bound is an \emph{inequality}: it tells you the lowest variance that any
+estimator in the admissible class can achieve, not the variance of a particular
+estimator you have in hand.
+An estimator that achieves equality in~\eqref{eq:crlb} is called \textbf{efficient}.
+The maximum-likelihood estimator (MLE) is asymptotically efficient: it reaches
+the CRLB as $T\to\infty$.
+
+For a \emph{biased} estimator with bias $b(\theta) = E[\hat\theta] - \theta$,
+the generalised form is:
+\begin{equation}
+    \mathrm{Var}(\hat\theta) \;\geq\;
+    \frac{\bigl[1 + db(\theta)/d\theta\bigr]^2}{\mathcal{I}_T(\theta)}.
+\end{equation}
+
+\paragraph{Regularity conditions.}
+The CRLB does \emph{not} apply to every estimator or every model automatically.
+Two separate sets of conditions must hold.
+
+\medskip
+\noindent\textit{(A) Conditions on the estimator itself:}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Unbiasedness.} $E_\theta[\hat\theta] = \theta$ for all $\theta$
+    in the parameter space.
+    This is the primary condition; it defines the class of estimators to which the
+    bound applies.
+    \item \textbf{Finite variance.} $\mathrm{Var}(\hat\theta) < \infty$.
+\end{enumerate}
+
+\medskip
+\noindent\textit{(B) Regularity conditions on the statistical model $f(x;\theta)$:}
+
+\begin{table}[h]
+\centering
+\caption{Regularity conditions required for the Cram\'er--Rao bound to hold.
+If any of these fails, the bound may not exist or may be violated by some
+estimator, and an alternative bound (Table~\ref{tab:bounds_family}) should
+be used instead.}
+\label{tab:regularity}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{4.2cm} p{9.0cm}}
+\hline
+\textbf{Condition} & \textbf{Meaning} \\
+\hline
+Open parameter space &
+$\theta \in \Theta$ where $\Theta \subseteq \mathbb{R}$ is an open set;
+the bound is a local (differential) statement. \\
+Support independence &
+The set $\{x : f(x;\theta)>0\}$ does not depend on $\theta$.
+If the support moves with $\theta$ (e.g.\ Uniform$(0,\theta)$),
+the CRLB does not hold. \\
+Differentiability &
+$\ln f(x;\theta)$ is differentiable with respect to $\theta$ for
+almost all $x$; the score function
+$s(x;\theta) = \partial\ln f/\partial\theta$ exists. \\
+Interchange of $\int$ and $\partial/\partial\theta$ &
+Differentiation through the integral
+$\partial/\partial\theta\!\int\! f(x;\theta)\,dx = 0$
+is valid (dominated convergence); this ensures
+$E_\theta[s(x;\theta)] = 0$. \\
+Finite, positive Fisher information &
+$0 < \mathcal{I}(\theta) = E_\theta[s(x;\theta)^2] < \infty$. \\
+\hline
+\end{tabular}
+\end{table}
+
+\medskip
+\noindent\textit{What regularity conditions mean conceptually.}
+The CRLB is derived by differentiating an integral identity with respect to $\theta$.
+For this operation to be valid, the model must be \emph{smooth} in $\theta$: the
+distribution must change in a well-defined, differentiable way as the parameter
+changes, and that change must be measurable through the score function.
+When the support of $f$ depends on $\theta$ --- for example, a uniform distribution
+on $[0,\theta]$ --- moving $\theta$ \emph{changes which data values are possible},
+not just how probable they are.
+In this case, the data carry information about $\theta$ through a completely
+different mechanism (extreme-order statistics), and the Fisher-information route
+breaks down.
+Similarly, if $f$ is not differentiable in $\theta$ (e.g.\ a double-exponential
+location model at the point of non-differentiability), the score function does not
+exist and the CRLB cannot be formed.
+
+\paragraph{How much memory survives the observation window?}
+A concrete consequence of autocorrelation is that the process retains memory
+across the entire observation window $T$.
+The autocorrelation at lag $k$ for an AR(1) process is
+$\rho(k) = \exp(-k/\tau)$.
+Evaluating this at $k = T = 100$ for each value of $\tau$ in the prior support
+shows how much of the original correlation survives after all $T$ steps:
+
+\begin{table}[h]
+\centering
+\caption{Fraction of the original autocorrelation remaining after the full
+$T = 100$ step observation window, $\rho(T) = \exp(-T/\tau)$, for selected
+values of $\tau$.
+For large $\tau$ the memory is far from exhausted at the end of the window,
+which is the direct cause of the limited effective sample size.
+Note that $\tau = 80$ gives $\rho(100) \approx 0.29$: nearly 30\% of the
+original correlation survives after 100 steps.}
+\label{tab:memory_survival}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{cccc}
+\hline
+$\tau$ & $\varphi = e^{-1/\tau}$ &
+$\rho(100) = e^{-100/\tau}$ &
+Memory remaining \\
+\hline
+2  & 0.607 & $e^{-50} \approx 0$        & Effectively zero after $\sim$6 steps \\
+10 & 0.905 & $e^{-10} \approx 0.000045$ & Gone \\
+40 & 0.975 & $e^{-2.5} \approx 0.082$   & 8\% remains \\
+80 & 0.988 & $e^{-1.25} \approx 0.287$  & \textbf{29\% remains} \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent For $\tau = 80$ (the upper limit of the prior), 29\% of the original
+correlation is still present at step 100.
+This is why the process at large $\tau$ is described as ``near a random walk'':
+$\varphi = e^{-1/80} \approx 0.988$ is only 1.2\% below unity, and the
+correlation decays by less than $e^{-1/80} \approx 1.2\%$ \emph{multiplicatively}
+(not additively) per step.
+After 100 steps the accumulated decay is $0.988^{100} = e^{-100/80} \approx 0.29$,
+leaving substantial memory intact.
+
+Note that \textbf{consistency} is \emph{not} a requirement for the CRLB.
+An estimator can be consistent or non-consistent; the bound applies equally to both,
+as long as unbiasedness and the regularity conditions hold.
+Consistency and efficiency are independent properties: the MLE is asymptotically
+consistent \emph{and} asymptotically efficient, but these follow from separate
+arguments.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{A family of lower bounds: pre-analysis tools}
+\label{sec:bounds_family}
+
+The CRLB is the most widely used lower bound but not the only one.
+Several related bounds address its limitations --- most importantly, the fact
+that the CRLB is often not tight (an efficient estimator may not exist) and
+that it fails when regularity conditions are violated.
+All bounds in this family answer the same \emph{pre-analysis question}:
+
+\begin{center}
+\emph{Before running any inference, what is the minimum variance that any
+estimator can achieve, given this data and this model?}
+\end{center}
+
+\noindent If the bound itself is large, no inference method --- frequentist or
+Bayesian, MLE or MCMC or SBI --- can do better.
+This separates \emph{fundamental statistical limits} from
+\emph{suboptimality of the chosen estimator}.
+
+\begin{table}[h]
+\centering
+\caption{Family of lower bounds on estimator variance, ordered from least to
+most tight (within the frequentist class) and including the Bayesian extension.
+All bounds require finite Fisher information to exist; the Chapman--Robbins bound
+is the exception and applies even when regularity conditions fail.}
+\label{tab:bounds_family}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{p{3.8cm} p{1.6cm} p{4.8cm} p{3.2cm}}
+\hline
+\textbf{Bound} & \textbf{Type} & \textbf{Key idea} & \textbf{When to use} \\
+\hline
+Cram\'er--Rao (1945/46) &
+Freq. &
+$1/\mathcal{I}_T(\theta)$; first-order score function. &
+Standard starting point; requires regularity. \\
+Bhattacharyya (1946) &
+Freq. &
+Uses higher-order derivatives of log-likelihood; strictly tighter than CRLB. &
+When CRLB is not achieved by any estimator. \\
+Chapman--Robbins (1951) &
+Freq. &
+Finite-difference version; no differentiability needed. &
+When regularity conditions fail (e.g.\ uniform support). \\
+Barankin (1949) &
+Freq. &
+Tightest classical bound; least-favourable parametric submodel. &
+When sharpest possible floor is required. \\
+Van~Trees inequality (1968) &
+Bayesian &
+Adds prior: $1/(\mathcal{I}_T(\theta)+\mathcal{I}_\mathrm{prior}(\theta))$. &
+Bayesian setting; directly bounds posterior variance. \\
+Ziv--Zakai (1969) &
+Bayesian &
+Links estimation error to hypothesis-testing error probability. &
+Signal detection and communications problems. \\
+Weiss--Weinstein (1988) &
+Bayesian &
+Tighter than Van~Trees in most practical cases. &
+When Van~Trees bound is too loose. \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Which bound is most relevant here.}
+The \textbf{Van~Trees inequality} is the most directly applicable bound for the
+inference in this project.
+Because the prior on $\tau$ is log-uniform on $[2, 80]$, it contributes prior
+information $\mathcal{I}_\mathrm{prior}(\tau)$ that slightly tightens the bound
+beyond the data alone.
+The Bayesian bound reads:
+\begin{equation}
+    E_\theta\bigl[\mathrm{Var}(\hat\tau \mid \mathbf{X})\bigr]
+    \;\geq\;
+    \frac{1}{\mathcal{I}_T(\tau) + \mathcal{I}_\mathrm{prior}(\tau)}.
+\end{equation}
+However, when $n_\mathrm{eff} \approx 1.3$ (as for $\tau=38$, $T=100$),
+$\mathcal{I}_T(\tau) = T/(2\tau^3) \approx 0.023$ is so small that the prior
+term dominates and the posterior width is controlled almost entirely by the
+prior support, not by the data.
+This is the formal reason why the posterior for $\tau_{NH}$ at $\tau=38$ is wide
+regardless of photon count or inference algorithm.
+
+\begin{keybox}
+\textbf{Pre-analysis interpretation of the bound family.}
+
+\smallskip
+\begin{itemize}[noitemsep]
+    \item \textbf{The bounds are not about a specific method.}
+    They apply to every possible unbiased (or, in the Bayesian case, any) estimator.
+    A wide bound means the problem is hard; no method can escape it.
+    \item \textbf{Check regularity first.}
+    Before applying the CRLB, verify that the support of the model does not depend
+    on the parameter, that the log-likelihood is differentiable, and that Fisher
+    information is finite.
+    For the AR(1) model used here, all regularity conditions hold for
+    $\phi \in (-1,1)$ and $\sigma > 0$.
+    \item \textbf{Use the Van~Trees bound for Bayesian inference.}
+    When a prior is available, the Van~Trees inequality is the correct pre-analysis
+    tool; the frequentist CRLB ignores prior information and can be overly
+    pessimistic.
+    \item \textbf{Consistency $\neq$ efficiency.}
+    An estimator can converge to the truth (consistent) without achieving the CRLB
+    (efficient).
+    The MLE is both, but only asymptotically as $T\to\infty$.
+    For finite $T$ --- as in all practical time series --- a gap between the MLE
+    variance and the CRLB typically remains.
+\end{itemize}
+\end{keybox}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~1: identifiability analysis}
+\label{sec:identifiability}
+
+Identifiability is logically prior to everything else: precision is irrelevant if
+parameters cannot be uniquely recovered even with infinite data.
+There are two levels.
+
+\medskip
+\noindent\textbf{Structural identifiability.}
+The model $f(x;\theta)$ is \emph{structurally identifiable} if the map
+$\theta \mapsto f(\cdot;\theta)$ is injective: distinct parameter values produce
+distinct data distributions.
+If two parameter vectors $\theta \neq \theta'$ satisfy
+$f(x;\theta) = f(x;\theta')$ for all $x$, the parameters are fundamentally
+confounded and no amount of data or algorithmic sophistication can separate them.
+This is a property of the model, not of the data.
+
+\medskip
+\noindent\textbf{Practical (local) identifiability.}
+Even when structural identifiability holds, a parameter may be practically
+unidentifiable for a given dataset: the likelihood surface is so flat in some
+direction that no estimator can pin it down.
+The Fisher information matrix provides the operational test:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{FIM rank test.}
+    If $\det\mathcal{I}(\theta) = 0$, at least one parameter direction carries
+    exactly zero Fisher information --- exact non-identifiability.
+    \item \textbf{Condition number.}
+    $\kappa = \lambda_{\max}/\lambda_{\min}$ of $\mathcal{I}(\theta)$.
+    Large $\kappa$ signals near-non-identifiability: the bound exists but is
+    enormous along the ill-conditioned eigenvector direction.
+    A rule of thumb from numerical linear algebra: $\kappa > 10^3$ indicates
+    severe ill-conditioning.
+    \item \textbf{Profile likelihood.}
+    Fix one parameter and maximise the likelihood over the rest.
+    A flat profile indicates a non-identifiable direction that the FIM rank
+    test may miss in practice due to finite-sample effects.
+    \item \textbf{Correlation matrix of estimators.}
+    $\mathrm{Corr}(\hat\theta_i,\hat\theta_j) =
+    -[\mathcal{I}^{-1}]_{ij}/\sqrt{[\mathcal{I}^{-1}]_{ii}[\mathcal{I}^{-1}]_{jj}}$.
+    Values close to $\pm 1$ reveal parameter trade-offs: the data constrain a
+    \emph{combination} of the two parameters well, but not each individually.
+\end{itemize}
+
+\noindent\textit{Relevance here.}
+For the AGN model, structural identifiability holds: $N_H$ and $K$ enter the
+spectrum through physically distinct mechanisms (exponential absorption vs.\ power-law
+normalisation) and at different energies.
+However the FIM is nearly block-diagonal in energy bands, so the off-diagonal
+$\mathcal{I}(N_H, K)$ element is small but non-zero, meaning a mild correlation
+between $\hat N_H$ and $\hat K$ is expected.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~2: information-theoretic minimax bounds}
+\label{sec:minimax}
+
+The CRLB family bounds the variance of a specific class of estimators (unbiased,
+or Bayesian).
+The \emph{minimax} perspective asks a harder question: what is the best
+\emph{worst-case} error any estimator can achieve, over all possible parameter values?
+These bounds are completely method-agnostic and require no regularity conditions.
+
+\paragraph{Mutual information as an absolute ceiling.}
+The mutual information $I(\theta; \mathbf{X})$ between the parameter and the data
+is the maximum amount of information about $\theta$ that the data can ever provide,
+regardless of the estimator or the inference method.
+By the data processing inequality:
+\begin{equation}
+    I(\theta;\, g(\mathbf{X})) \leq I(\theta;\, \mathbf{X})
+    \quad \text{for any function } g.
+\end{equation}
+Any summary statistic, dimensionality reduction, or compression of the data can
+only \emph{lose} information, never gain it.
+Computing $I(\theta;\mathbf{X})$ before inference therefore sets an absolute
+ceiling on what can be learned.
+
+\paragraph{Fano's inequality.}
+For a discretised parameter taking $M$ values, Fano's inequality gives a lower
+bound on the probability of error $P_e$ for any estimator:
+\begin{equation}
+    P_e \;\geq\; 1 - \frac{I(\theta;\mathbf{X}) + \log 2}{\log M}.
+\end{equation}
+This is particularly useful for detection problems: if the mutual information is
+small relative to $\log M$, the error rate is bounded away from zero regardless
+of the inference algorithm used.
+
+\paragraph{Le~Cam's method and Assouad's lemma.}
+These provide minimax lower bounds by reducing estimation to hypothesis testing:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Le~Cam's method.}
+    Find the two parameter values $\theta_0$, $\theta_1$ that are hardest to
+    distinguish (smallest total variation distance between $f(\cdot;\theta_0)$
+    and $f(\cdot;\theta_1)$).
+    The minimax risk is bounded below by the error rate of the best two-point test.
+    \item \textbf{Assouad's lemma.}
+    Multivariate generalisation: constructs a $2^d$ hypercube of parameter values
+    and bounds the minimax risk in terms of the pairwise distinguishability.
+    Gives the sharpest known minimax lower bounds for many problems.
+\end{itemize}
+
+\noindent These bounds are strictly stronger than the CRLB in irregular models
+(where the CRLB does not apply) and provide non-asymptotic guarantees.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~3: sensitivity and conditioning}
+\label{sec:sensitivity}
+
+Even when parameters are identifiable and the CRLB is finite, the inference
+problem can be numerically and statistically ill-conditioned: small perturbations
+in the data produce large swings in the estimates.
+These diagnostics quantify that amplification.
+
+\begin{table}[h]
+\centering
+\caption{Sensitivity and conditioning diagnostics. All are computable from the
+Fisher information matrix before any data is collected.}
+\label{tab:sensitivity}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{4.0cm} p{9.2cm}}
+\hline
+\textbf{Diagnostic} & \textbf{What it reveals} \\
+\hline
+FIM eigendecomposition &
+Eigenvectors identify which linear combinations of parameters are
+well-constrained (large eigenvalue) vs.\ poorly constrained (small eigenvalue).
+Eigenvalues give the variance in each principal direction. \\
+Condition number $\kappa = \lambda_{\max}/\lambda_{\min}$ &
+Ratio of best to worst constrained direction; $\kappa \gg 1$ means
+the problem is ill-conditioned and small noise in data is amplified into
+large uncertainty in the hard direction. \\
+Estimator correlation matrix &
+Off-diagonal entries $\mathrm{Corr}(\hat\theta_i,\hat\theta_j)$ near
+$\pm 1$ reveal parameter degeneracies: the data constrain a combination
+but not each individually. \\
+Variance inflation factor (VIF) &
+In regression: $\mathrm{VIF}_j = 1/(1-R_j^2)$ where $R_j^2$ is the
+$R^2$ from regressing predictor $j$ on the others.
+$\mathrm{VIF} > 10$ indicates harmful collinearity. \\
+Sensitivity matrix $\partial E[\mathbf{X}]/\partial\theta$ &
+Directly measures how much the expected data changes per unit change in
+the parameter; flat sensitivity = hard to identify. \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent\textit{Relevance here.}
+The FIM eigendecomposition for the joint $(N_H, K)$ model reveals whether there
+is a ``soft direction'' --- a combination of $N_H$ and $K$ that is poorly
+constrained at a given count level.
+At low counts, the two parameters become more correlated because both $N_H$
+(through absorption) and $K$ (through normalisation) can explain a reduction
+in observed counts.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~4: sample size and power analysis}
+\label{sec:power}
+
+Once the bound on variance is known, one can ask: how much data is needed to
+achieve a desired precision or detection probability?
+
+\paragraph{Classical power analysis.}
+Given an effect size $\delta$, significance level $\alpha$, and desired power
+$1-\beta$, compute the minimum sample size $T$ such that a test of size $\alpha$
+achieves power $1-\beta$.
+This is standard in hypothesis-testing contexts (e.g.\ detecting variability
+vs.\ no variability).
+
+\paragraph{Bayesian sample size determination.}
+The Bayesian analogue targets the \emph{expected posterior variance}:
+find the minimum $T$ such that
+\begin{equation}
+    E_{\mathbf{X}}\bigl[\mathrm{Var}(\theta \mid \mathbf{X})\bigr]
+    \;\leq\; \epsilon^2,
+\end{equation}
+where $\epsilon$ is the desired posterior standard deviation.
+Using the Van~Trees bound as an approximation, this gives an analytic target
+before any data are collected.
+
+\paragraph{$n_\mathrm{eff}$ requirement for autocorrelated processes.}
+This is the most directly actionable tool for the AR(1) setting.
+The Cram\'er--Rao bound gives $\mathrm{std}(\hat\tau)/\tau \geq 1/\sqrt{n_\mathrm{eff}}$,
+so achieving relative precision $\delta$ requires:
+\begin{equation}
+    n_\mathrm{eff} = \frac{T}{2\tau} \;\geq\; \frac{1}{\delta^2}
+    \quad\Longrightarrow\quad
+    T \;\geq\; \frac{2\tau}{\delta^2}.
+    \label{eq:T_requirement}
+\end{equation}
+Table~\ref{tab:T_requirement} evaluates this for the parameter combinations
+studied in this project.
+
+\begin{table}[h]
+\centering
+\caption{Minimum time series length $T_{\min} = 2\tau/\delta^2$ required to
+achieve relative precision $\delta = \mathrm{std}(\hat\tau)/\tau$ at the
+Cram\'er--Rao limit, for selected values of $\tau$ and $\delta$.
+The current dataset has $T = 100$.}
+\label{tab:T_requirement}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{cccccc}
+\hline
+ & \multicolumn{5}{c}{Required $T_{\min}$ for target relative precision $\delta$} \\
+\cmidrule(lr){2-6}
+$\tau$ & $\delta=0.5$ & $\delta=0.3$ & $\delta=0.2$ & $\delta=0.1$ & $\delta=0.05$ \\
+\hline
+2   &  16  &  44  &  100 &  400  &  1\,600 \\
+10  &  80  &  222 &  500 &  2\,000 & 8\,000 \\
+38  &  304 &  844 & 1\,900 & 7\,600 & 30\,400 \\
+50  &  400 & 1\,111 & 2\,500 & 10\,000 & 40\,000 \\
+80  &  640 & 1\,778 & 4\,000 & 16\,000 & 64\,000 \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent For $\tau=38$ and $T=100$, even the loosest target ($\delta=0.5$,
+factor-of-two precision) requires $T_{\min} = 304 > 100$.
+With $T=100$ the achievable precision floor is
+$\delta \geq \sqrt{2\tau/T} = \sqrt{76/100} \approx 0.87$,
+meaning the best any estimator can do is a relative standard deviation of $87\%$.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~5: local asymptotic normality and model
+regularity}
+\label{sec:lan}
+
+\paragraph{What is local asymptotic normality (LAN)?}
+A parametric model satisfies \textbf{LAN} (Le~Cam 1960) if, locally around any
+$\theta_0$, the log-likelihood ratio for a $1/\sqrt{T}$-neighbourhood of
+$\theta_0$ converges in distribution to a Gaussian shift:
+\begin{equation}
+    \log \frac{L(\theta_0 + h/\sqrt{T})}{L(\theta_0)}
+    \;\xrightarrow{d}\;
+    h\,\Delta - \tfrac{1}{2}h^2 \mathcal{I}(\theta_0),
+    \quad \Delta \sim \mathcal{N}(0, \mathcal{I}(\theta_0)).
+\end{equation}
+LAN is the condition under which the model is \emph{regular} in the asymptotic
+sense.
+
+\paragraph{Consequences when LAN holds.}
+\begin{itemize}[noitemsep]
+    \item All regular estimators converge at rate $1/\sqrt{T}$.
+    \item The MLE is asymptotically efficient: it achieves the CRLB.
+    \item The posterior is asymptotically normal (Bernstein--von Mises theorem).
+    \item The CRLB is sharp: an efficient estimator exists asymptotically.
+\end{itemize}
+
+\paragraph{Consequences when LAN fails.}
+In non-regular models --- change-point problems, models with non-smooth
+likelihoods, or boundary parameters --- the $1/\sqrt{T}$ rate breaks down.
+Convergence may be faster (e.g.\ $1/T$ for change-point location) or slower,
+and the CRLB is no longer the correct floor.
+Pre-analysis should verify LAN before relying on the CRLB as the fundamental
+limit.
+
+\paragraph{LAN for the AR(1) model.}
+The Gaussian AR(1) model with $\phi \in (-1,1)$ and $\sigma > 0$ satisfies LAN
+at every interior point of the parameter space.
+The regularity conditions in Table~\ref{tab:regularity} are precisely the
+sufficient conditions for LAN to hold.
+At the boundary $\phi = 1$ (unit root), LAN fails: the parameter estimate of
+$\phi$ converges faster than $1/\sqrt{T}$ (Dickey--Fuller theory), and the
+CRLB no longer applies.
+This boundary is outside our prior support ($\phi < \exp(-1/80) < 1$), so LAN
+holds throughout the prior.
+
+% ──────────────────────────────────────────────────────────────────────────────
+\subsection*{Pre-analysis diagnostic~6: prior and model consistency checks}
+\label{sec:prior_checks}
+
+The diagnostics above assume the model is correctly specified.
+Before inference, one should verify that the model and prior are consistent with
+the data-generating process.
+
+\paragraph{Prior predictive check.}
+Simulate synthetic data from the generative model using parameters drawn from
+the prior:
+\begin{equation}
+    \tilde\theta \sim \pi(\theta), \quad
+    \tilde{\mathbf{X}} \sim f(\mathbf{x}\mid\tilde\theta).
+\end{equation}
+If the resulting synthetic datasets look qualitatively different from real
+observations (wrong count ranges, wrong spectral shape, wrong variability
+amplitude), the prior or likelihood is misspecified \emph{before} inference
+starts.
+This is a zero-cost diagnostic that costs only simulation time.
+
+\paragraph{Prior--data conflict.}
+After collecting data, check whether the observed $\mathbf{X}$ falls in a
+low-probability region of the prior predictive distribution:
+\begin{equation}
+    p(\mathbf{X}) = \int f(\mathbf{X}\mid\theta)\,\pi(\theta)\,d\theta.
+\end{equation}
+A very low $p(\mathbf{X})$ signals that the prior and the data are in conflict
+--- either the prior is misspecified, or the data contain unexpected features.
+
+\paragraph{Kullback--Leibler support condition (Schwartz theorem).}
+A necessary condition for Bayesian posterior consistency is that the prior
+assigns positive probability to every KL-neighbourhood of the true parameter:
+\begin{equation}
+    \Pi\bigl(\theta : \mathrm{KL}(f(\cdot;\theta_0)\,\|\,f(\cdot;\theta)) < \varepsilon\bigr) > 0
+    \quad \forall\,\varepsilon > 0.
+\end{equation}
+If the true $\theta_0$ lies in a region of zero prior probability (e.g.\ $\tau_0$
+outside the prior support $[2,80]$), the posterior will \emph{never} concentrate
+near the truth regardless of how much data are collected.
+Always verify that the true parameter values used in simulation lie in the
+interior of the prior support.
+
+\paragraph{Prior sensitivity.}
+Perturb the prior slightly and measure how much the posterior changes.
+Large sensitivity means the data are not informative enough to overwhelm the
+prior; the posterior width is prior-dominated.
+This is directly related to the Van~Trees bound: when
+$\mathcal{I}_T(\theta) \ll \mathcal{I}_\mathrm{prior}(\theta)$, the posterior is
+prior-dominated and prior sensitivity will be high.
+
+\begin{keybox}
+\textbf{Summary: six pre-analysis diagnostics and what each rules out.}
+
+\smallskip
+\begin{tabular}{p{3.8cm} p{9.0cm}}
+\textbf{Diagnostic} & \textbf{Fundamental limit revealed} \\
+\hline
+1.\ Identifiability (FIM rank, profile likelihood) &
+Whether parameter recovery is possible at all \\
+2.\ Minimax bounds (Fano, Le~Cam, mutual information) &
+Best possible error for any estimator, no regularity needed \\
+3.\ Sensitivity and conditioning (FIM eigenstructure, VIF) &
+Which parameter directions are hard vs.\ easy \\
+4.\ Sample size / $n_\mathrm{eff}$ requirement &
+Minimum data needed to achieve a target precision \\
+5.\ LAN / model regularity check &
+Whether the CRLB is achievable asymptotically \\
+6.\ Prior predictive / KL support check &
+Whether the model and prior are consistent with the data \\
+\end{tabular}
+\end{keybox}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section{Experiment Design from First Principles}
+\label{sec:experiment_design}
+
+\textit{This section is reserved for a detailed treatment of how the pre-analysis
+diagnostics above can be used to design an observational programme.
+The central idea is to translate fundamental statistical limits --- the CRLB,
+$n_\mathrm{eff}$, minimax bounds, and identifiability conditions --- into concrete
+observational requirements: how many time steps $T$, how many photons per step $C$,
+what cadence, and what source properties are needed to recover a given parameter
+with a given precision.
+The following topics will be developed here.}
+
+\medskip
+\begin{enumerate}[noitemsep]
+    \item \textbf{From precision target to $T_{\min}$.}
+    Use equation~\eqref{eq:T_requirement} to convert a desired relative precision
+    $\delta$ and timescale $\tau$ into a minimum observation length.
+    \item \textbf{From photon budget to per-step SNR.}
+    Use the Fisher information for $N_H$ and $K$ to determine the minimum count
+    rate $C$ needed so that Level-1 noise (Poisson) is below Level-2 noise
+    (AR(1) innovation), enabling trajectory tracking.
+    \item \textbf{Joint design: $T$ and $C$ as coupled requirements.}
+    Construct iso-precision contours in the $(T, C)$ plane using the four-level
+    uncertainty decomposition (Section~2).
+    \item \textbf{Identifiability check at design stage.}
+    Evaluate the FIM condition number as a function of $N_H$, $K$, and $C$;
+    identify the regime where $N_H$ and $K$ become degenerate.
+    \item \textbf{Bayesian experimental design (optimal design).}
+    Maximise the expected information gain $E[D_\mathrm{KL}(\pi_\mathrm{post}\,\|\,\pi_\mathrm{prior})]$
+    over the design space $(T, C, \text{cadence})$; this is the decision-theoretic
+    version of the pre-analysis pipeline.
+    \item \textbf{Robustness to model misspecification.}
+    Assess how design choices change when the true process deviates from the
+    assumed AR(1) model (e.g.\ non-stationarity, heavier tails, or a second
+    timescale).
+\end{enumerate}
+
+% ──────────────────────────────────────────────────────────────────────────────
+\section*{Key References}
+
+\begin{description}[leftmargin=0pt, itemsep=4pt]
+
+\item[Bartlett (1946)]
+Bartlett, M.S.\ (1946).
+On the theoretical specification of sampling properties of autocorrelated time
+series.
+\textit{Journal of the Royal Statistical Society, Series B}, \textbf{8}(1), 27--41.\\
+\textit{Original derivation of $\mathrm{Var}(\bar{X})$ with the triangular taper
+(equation~\eqref{eq:var_xbar_exact}).}
+
+\item[Kish (1965)]
+Kish, L.\ (1965).
+\textit{Survey Sampling}.
+Wiley, New York.\\
+\textit{Original introduction of the term ``effective sample size'' $n_\mathrm{eff}$
+for correlated (clustered) observations in survey statistics.}
+
+\item[Geyer (1992)]
+Geyer, C.J.\ (1992).
+Practical Markov Chain Monte Carlo.
+\textit{Statistical Science}, \textbf{7}(4), 473--511.\\
+\textit{Defines $n_\mathrm{eff} = T/(2\tau_\mathrm{int})$ for MCMC chains and
+establishes the integrated autocorrelation time as the key convergence diagnostic.
+Canonical reference for both statistical and MCMC $n_\mathrm{eff}$.}
+
+\item[Rao (1945)]
+Rao, C.R.\ (1945).
+Information and the accuracy attainable in the estimation of statistical parameters.
+\textit{Bulletin of the Calcutta Mathematical Society}, \textbf{37}, 81--91.\\
+\textit{Original proof of the lower bound on estimator variance now known as
+the Cram\'er--Rao bound. Introduces Fisher information as the curvature of the
+log-likelihood.}
+
+\item[Cram\'er (1946)]
+Cram\'er, H.\ (1946).
+\textit{Mathematical Methods of Statistics}.
+Princeton University Press.\\
+\textit{Independent derivation of the same lower bound (Chapter 32). Also contains
+the Bernstein--von Mises theorem and asymptotic theory of the MLE.}
+
+\item[Bhattacharyya (1946)]
+Bhattacharyya, A.\ (1946--47).
+On some analogues of the amount of information and their use in statistical
+estimation.
+\textit{Sankhya}, \textbf{8}, 1--14 and 201--218.\\
+\textit{Generalisation of the CRLB to higher-order derivatives of the
+log-likelihood, giving a sequence of tighter lower bounds.}
+
+\item[Le~Cam (1960)]
+Le~Cam, L.\ (1960).
+Locally asymptotically normal families of distributions.
+\textit{University of California Publications in Statistics}, \textbf{3}, 37--98.\\
+\textit{Introduces local asymptotic normality (LAN): the condition under which a
+parametric model is locally equivalent to a Gaussian shift experiment.
+Establishes that the CRLB is sharp (achievable) for all regular models.}
+
+\item[Chapman \& Robbins (1951)]
+Chapman, D.G.\ \& Robbins, H.\ (1951).
+Minimum variance estimation without regularity assumptions.
+\textit{Annals of Mathematical Statistics}, \textbf{22}(4), 581--586.\\
+\textit{Finite-difference lower bound that does not require differentiability of
+the log-likelihood; applies when the support of the distribution depends on
+the parameter.}
+
+\item[Cover \& Thomas (2006)]
+Cover, T.M.\ \& Thomas, J.A.\ (2006).
+\textit{Elements of Information Theory}, 2nd edition.
+Wiley, New York.\\
+\textit{Definitive reference for mutual information, Fano's inequality, the data
+processing inequality, and channel capacity (Chapters 2, 7, and 8).
+The data processing inequality $I(\theta;g(\mathbf{X})) \leq I(\theta;\mathbf{X})$
+is proved in Theorem~2.8.1.}
+
+\item[Van~Trees (1968)]
+Van~Trees, H.L.\ (1968).
+\textit{Detection, Estimation, and Modulation Theory, Part~I}.
+Wiley, New York.\\
+\textit{Introduces the Bayesian Cram\'er--Rao bound (Van~Trees inequality),
+which incorporates prior information through the prior Fisher information
+$\mathcal{I}_\mathrm{prior}(\theta)$. The directly applicable bound for
+Bayesian posterior variance.}
+
+\item[Casella \& Berger (2002)]
+Casella, G.\ \& Berger, R.L.\ (2002).
+\textit{Statistical Inference}, 2nd edition.
+Duxbury Press.\\
+\textit{Standard graduate text for Fisher information, the Cram\'er--Rao bound,
+regularity conditions, and MLE asymptotic efficiency (Chapters 7 and 10).}
+
+\item[Brockwell \& Davis (2002)]
+Brockwell, P.J.\ \& Davis, R.A.\ (2002).
+\textit{Introduction to Time Series and Forecasting}, 2nd edition.
+Springer.\\
+\textit{AR(1) process, autocovariance function, spectral density, and the
+asymptotic distribution of the sample mean (expressed as $2\pi f(0)/T$,
+equivalent to our $2\sigma^2\tau_\mathrm{int}/T$).
+Does not use the term $n_\mathrm{eff}$.}
+
+\item[Hamilton (1994)]
+Hamilton, J.D.\ (1994).
+\textit{Time Series Analysis}.
+Princeton University Press.\\
+\textit{Comprehensive treatment of AR processes, spectral theory, and estimation.
+Chapters 5 and 8 cover the autocovariance-generating function and sample mean
+variance in depth.}
+
+\item[Gelman et al.\ (2013)]
+Gelman, A., Carlin, J.B., Stern, H.S., Dunson, D.B., Vehtari, A.\ \& Rubin, D.B.\
+(2013).
+\textit{Bayesian Data Analysis}, 3rd edition.
+CRC Press.\\
+\textit{Covers Bayesian inference, HMC/NUTS, MCMC $n_\mathrm{eff}$, R-hat
+diagnostics, and the normal approximation to the posterior
+(Bernstein--von Mises, \S4.4).
+The most directly useful single book for the inference methodology used here.}
+
+\item[Brooks et al.\ (2011)]
+Brooks, S., Gelman, A., Jones, G.L.\ \& Meng, X.-L.\ (eds.)\ (2011).
+\textit{Handbook of Markov Chain Monte Carlo}.
+CRC Press.\\
+\textit{Contains Neal's definitive chapter on HMC (Chapter 5) and Geyer's
+chapter on MCMC convergence theory. Reference for HMC leapfrog geometry and
+MCMC $n_\mathrm{eff}$ formula.}
+
+\item[van der Vaart (1998)]
+van der Vaart, A.W.\ (1998).
+\textit{Asymptotic Statistics}.
+Cambridge University Press.\\
+\textit{Rigorous treatment of the Bernstein--von Mises theorem (Chapter 10),
+establishing that the Bayesian posterior concentrates as
+$\mathcal{N}(\hat\theta_\mathrm{MLE},\,\mathcal{I}_T^{-1})$ for large $T$.}
+
+\item[Vehtari et al.\ (2021)]
+Vehtari, A., Gelman, A., Simpson, D., Carpenter, B.\ \& B\"urkner, P.-C.\ (2021).
+Rank-normalization, folding, and localization: an improved $\hat R$ for assessing
+convergence of MCMC.
+\textit{Bayesian Analysis}, \textbf{16}(2), 667--718.\\
+\textit{Modern definition of MCMC $n_\mathrm{eff}$ and $\hat R$ implemented in
+NumPyro's \texttt{summary()} function.}
+
+\end{description}
+
+\end{document}
