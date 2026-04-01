@@ -1,42 +1,61 @@
-# Large inference output files (>100 MB)
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.whl
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# ── Jupyter ────────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Large inference and data files (regenerable) ─────────────────────────────
 *.npz
 *.pkl
 *.pickle
+data/synthetic_count_*.npz
+output/inference/*.npz
+output/summary/*.csv
 
-# Cached simulation and PSD results (regenerable)
-results/cache_*.npz
-code_backup/Claude_Beta_Recovery/results/cache_*.npz
+# ── Keep these small pre-computed data files ──────────────────────────────────
+!data/fake_count.npz
+!data/photo_electric_sigma_redshift_0108.npz
 
-# Raw results directories (regenerable outputs)
+# ── Instrument response files (not redistributable) ───────────────────────────
+data/SDSSJ0932+0405.pi
+data/SDSSJ0932+0405.rmf
+data/SDSSJ0932+0405.corr.arf
+data/SDSSJ0932+0405_bkg.pi
+data/SDSSJ0932+0405_bkg.rmf
+data/SDSSJ0932+0405_bkg.arf
+
+# ── Plot outputs (regenerable by running the scripts) ─────────────────────────
+plots/*/*.pdf
+plots/*/*.png
+output/plots/*.png
+output/plots/*.pdf
+results/
 code_backup/Claude_Beta_Recovery/results/
 code_backup/plot_old/
 
-# All plot outputs (regenerable by running the scripts)
-plots/*/*.pdf
-plots/*/*.png
-
-# All data directories inside reproducibility plots
+# ── Plot data directories ─────────────────────────────────────────────────────
 plots/*/data/
 
-# Top-level results and output directories
-results/
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-.ipynb_checkpoints/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Stan compiled models
-*.stan.exe
-*.hpp
-*/Stan_files/
-
-# LaTeX build artifacts and compiled PDFs
+# ── LaTeX build artifacts and compiled PDFs ───────────────────────────────────
 *.aux
 *.log
 *.out
@@ -47,3 +66,29 @@ Thumbs.db
 *.blg
 *.bbl
 doc/feasibility_assessment.pdf
+
+# ── Stan compiled models ──────────────────────────────────────────────────────
+*.stan.exe
+*.hpp
+*/Stan_files/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Logs and temporary files ──────────────────────────────────────────────────
+*.tmp
+*.bak

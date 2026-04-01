@@ -1,0 +1,27 @@
+# Core scientific stack
+numpy>=1.26
+scipy>=1.11
+
+# JAX ecosystem (CPU build; for GPU replace jax[cpu] with jax[cuda12])
+jax[cpu]>=0.4.27
+numpyro>=0.15.0
+
+# Astronomy
+astropy>=6.1
+xraystan           # X-ray spectral data I/O (wraps clarsach)
+
+# Visualisation
+matplotlib>=3.9
+
+# Inference diagnostics
+pandas>=2.2
+
+# ── Installation ──────────────────────────────────────────────────────────────
+# Create and activate the environment, then install:
+#
+#   conda create -n agn-sbi python=3.11
+#   conda activate agn-sbi
+#   pip install -r requirements.txt
+#
+# xraystan is not on PyPI; install from source:
+#   pip install git+https://github.com/JohannesBuchner/xraystan
