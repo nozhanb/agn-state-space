@@ -190,8 +190,7 @@ The two pre-processed files that are tracked:
 
 ---
 
-## Author
+## Authors
 
-**Nozhan Balafkan**
-In collaboration with Dr. Johannes Buchner (Max Planck Institute for
-Extraterrestrial Physics, Garching, Germany).
+Nozhan Balafkan and Dr. Johannes Buchner (Max Planck Institute for
+Extraterrestrial Physics, Garching, Germany)
