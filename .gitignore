@@ -11,9 +11,15 @@ code_backup/Claude_Beta_Recovery/results/cache_*.npz
 code_backup/Claude_Beta_Recovery/results/
 code_backup/plot_old/
 
-# Data directories inside reproducibility plots (large files excluded)
-plots/*/data/*.npz
-plots/*/data/*.pkl
+# All plot outputs (regenerable by running the scripts)
+plots/*/*.pdf
+plots/*/*.png
+
+# All data directories inside reproducibility plots
+plots/*/data/
+
+# Top-level results and output directories
+results/
 
 # Python cache
 __pycache__/
@@ -30,7 +36,7 @@ Thumbs.db
 *.hpp
 */Stan_files/
 
-# LaTeX build artifacts
+# LaTeX build artifacts and compiled PDFs
 *.aux
 *.log
 *.out
@@ -40,3 +46,4 @@ Thumbs.db
 *.fdb_latexmk
 *.blg
 *.bbl
+doc/feasibility_assessment.pdf
