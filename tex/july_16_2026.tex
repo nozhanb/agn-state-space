@@ -650,29 +650,6 @@ Hu et al. (2022) caution that the background count rate has a Poisson power that
 % Yuk and Dai (2025) ---> https://www.aanda.org/articles/aa/full_html/2025/06/aa52469-24/aa52469-24.html
 % Papadakis and Binas (2024) ---> https://www.aanda.org/articles/aa/abs/2024/05/aa47995-23/aa47995-23.html
 
-\begin{comment}
-
-\subsubsection{Aliasing and leakage}
-\label{subsubsec:aliasing_leakage}
-Aliasing is the consequence of discretization of a continuous time series to achieve a discrete sequence. As a result of this process the frequencies  
-
-The expected value of the raw periodogram $h(\mu)$ is define as follows,
-
-\begin{equation}
-\label{eq:leakage}
-E[I_N(\omega)] = \int^{\pi}_{-\pi} h(\mu) F_N(\mu - \omega) d\mu,
-\end{equation}
-where $I_N(\mu)$ is the sample periodogram for N data points and $F_N$ is the Fejer kernel. In other words the expected value of the sample periodogram is the result of weighted integral of the raw periodogran and the Fejer kernel. 
-
-% See equation 6.2.11 on page 418 of Priestley.
-
-% S. F. Zhu and Y. Q. Xue 2016 ---> 10.3847/0004-637X/825/1/56 ---> 
-% G. A. Prieto et al. 2007 ---> https://mathweb.ucsd.edu/~ronspubs/07_08_multitaper.pdf
-
-\end{comment}
-
-
-
 %\section{Inference}
 %\label{sec:inference}
 
@@ -961,7 +938,7 @@ this regime and the posterior drifts toward the lower end of the prior.}
 
 \subsubsection{PSD recovery verification}
 \label{sec:verification_results_psd}
-In sec. \ref{sec:verification_results_parameter} we checked the performance of our model over the suit of $C_t$s we generated. Now, a more important question to answer is whether our model has been able to recover the true temporal dependence of the simulated $C_t$s. In other words, we would like to check if our model has been able to recover the true PSD of the selected $C_t$s. Before applying the model to the selected $C_t$s, we first tested our model on a simpler set of $C_t$s that were generated based on a simple color-noise process with PSD function of the form $\propto f^{-\beta}$ with $\beta = \{1.7, 3, 4\}$. This data set does not take into account the absorption and instrumental response matrices (see Appendix \ref{app:recovery} for more details on the light curve generation, inference and the impact of aliasing and red noise leakage on PSD recovery). Running our model over this data set we were able to recover the three $\beta$ values correctly. \\
+In sec. \ref{sec:verification_results_parameter} we checked the performance of our model over the suit of $C_t$s we generated. Now, a more important question to answer is whether our model has been able to recover the true temporal dependence of the simulated $C_t$s. In other words, we would like to check if our model has been able to recover the true PSD of the selected $C_t$s. Before applying the model to the selected $C_t$s, we first tested our model on a simpler set of $C_t$s that were generated based on a simple color-noise process with PSD function of the form $\propto f^{-\beta}$ with $\beta = \{1.7, 3, 4\}$. This data set does not take into account the absorption and instrumental response matrices (see Appendix \ref{app:recovery} for more details on the light curve generation, inference, and fitting procedure). Running our model over this data set, we recovered $\beta$ within the [5\%-95\%] credible interval for two of the three cases ($\beta = 3$ and $\beta = 4$); for $\beta = 1.7$ the true value falls just outside this interval, which we show in Appendix \ref{app:recovery} to be consistent with ordinary realisation-to-realisation scatter of the periodogram estimator rather than a systematic recovery bias. \\
 Next, we tested the capability of our model in recovering the true PSD of the $C_t$s we generated in sec. \ref{sec:verification_results_parameter}. As we described earlier we used a posterior sample size of 6000. This means for each $N_H$, $\tau$ and $K$ combination (see table. \ref{tab:light_curve_sim_table}) we have 6000 inferred $C_t$s that share the same statistical properties as the true $C_t$. We use these posterior samples to test whether our model is able to recover the PSD of the true $C_t$. For each combination, we estimate the periodogram of the true $C_t$. Next, we bin the periodogram according to \citet{Vaughan2003}. Finally, we fit the binned data to the power-law function of the form
 
 \begin{equation}
@@ -1724,9 +1701,9 @@ Add a software paragraph similar to the one below
 
             \begin{figure}[h]
                 \centering
-                \includegraphics[width=\columnwidth]{app_A_fig_beta_4.pdf}
-                \caption{PSD diagram of our colored noise with a power law index of 4 (black circles) and binned PSD (orange circles) along with the best fit (red dashed line) and error bars. Notice that the error bars for the first two binned points are not visible due to large values of the power in the low frequency regime.}
-                \label{fig:my_label}
+                \includegraphics[width=\columnwidth]{app_A_fig_beta_4_v2.pdf}
+                \caption{PSD recovery for a colorednoise realisation with true power-law index $\beta = 4$. Black points show the unbinned periodogram of one representative AR(1) posterior draw; orange points show the same periodogram averaged into 9 logarithmically-spaced frequency bins, with error bars from the scatter within each bin. The red dashed line is the power-law-plus-constant fit (Eq.~\ref{eq:periodogram_fit}) to this single binned draw, shown for illustration; the $\beta$ value reported in Table~\ref{tab:appendix_params} is the median (with 5\%-95\% interval) over the distribution of such fits across all posterior draws, not this one realisation. The solid blue curve shows the periodogram of the true, pre-AR(1) colorednoise input signal, for direct visual comparison against the recovered fit.}
+                \label{fig:app_a_psd_beta4}
             \end{figure}
 
 
@@ -1736,18 +1713,18 @@ Add a software paragraph similar to the one below
             \begin{equation}
             \log(P) = \log\left(a f^{-\beta} + c\right)
             \end{equation}
-            where \( P \) is the power, \( a \) is the coefficient, \( \beta \) is the power-law index, and \( C \) is the intercept (see Fig.~A.2). The most direct approach would be to fit this curve to the unbinned periodogram. However, this does not yield an accurate fit because periodograms follow a chi-square distribution with two degrees of freedom at a given frequency (see \citet{BarretVaughan2012}). To overcome this difficulty, we smoothed our periodograms by binning the frequencies into 9 segments and averaging the PSD within each segment, following \citet{Vaughan2003}, so that the resulting PSD in each bin approximately follows a normal distribution according to the Central Limit Theorem (CLT). Coarser binning (9 segments) was necessary to ensure every bin contained more than one data point, since finer binning left the lowest-frequency bins with only a single data point; with 9 bins, the first bin contains two data points and the highest-frequency bin contains 270. We fit each periodogram using \texttt{curve\_fit} from \texttt{scipy.optimize} and recovered the power-law index within two standard deviations for all three curves (see table. A1). %In Eq. (A1) the power-law term inside the logarithm explains the long term variability of the parameter of interest while the intercept term explains the behaviour of the parameter of interest at higher frequencies where the Poisson noise dominates the process.            
+            where \( P \) is the power, \( a \) is the coefficient, \( \beta \) is the power-law index, and \( C \) is the intercept (see Fig.~A.2). The most direct approach would be to fit this curve to the unbinned periodogram. However, this does not yield an accurate fit because periodograms follow a chi-square distribution with two degrees of freedom at a given frequency (see \citet{BarretVaughan2012}). To overcome this difficulty, we smoothed our periodograms by binning the frequencies into 9 segments and averaging the PSD within each segment, following \citet{Vaughan2003}, so that the resulting PSD in each bin approximately follows a normal distribution according to the Central Limit Theorem (CLT). Coarser binning (9 segments) was necessary to ensure every bin contained more than one data point, since finer binning left the lowest-frequency bins with only a single data point; with 9 bins, the first bin contains two data points and the highest-frequency bin contains 270. We fit each periodogram using \texttt{curve\_fit} from \texttt{scipy.optimize}; the true power-law index falls within the recovered [5\%-95\%] credible interval for $\beta = 3$ and $\beta = 4$, and just outside it for $\beta = 1.7$, consistent with realisation-to-realisation scatter in the periodogram estimator rather than a systematic bias (see table. A1).\footnote{An independent test using 40 freshly generated colorednoise realizations at $\beta = 1.7$ (fit directly, without Poisson sampling or AR(1) modeling) gives a median recovered $\beta$ of 1.60 and a mean of 1.68 (range 1.30--3.69 across the 40 draws), confirming that the single-realization result in Table~\ref{tab:appendix_params} sits within the range of ordinary periodogram-estimator scatter rather than reflecting a modeling bias.} %In Eq. (A1) the power-law term inside the logarithm explains the long term variability of the parameter of interest while the intercept term explains the behaviour of the parameter of interest at higher frequencies where the Poisson noise dominates the process.            
 
             \begin{table}[h]
                 \caption{Parameter estimates and true values.}
                 \centering
                 \begin{tabular}{lcccc}
                 \hline\hline
-                Parameter & -$2\sigma$ & Mean & +$2\sigma$ & True Value \\
+                Parameter & 5\% & Median & 95\% & True Value \\
                 \hline
-                $\beta_1$ & 1.53 & 1.97 & 2.41 & 1.70 \\
-                $\beta_2$ & 2.02 & 2.88 & 3.74 & 3.00 \\
-                $\beta_3$ & 3.00 & 3.80 & 4.60 & 4.00 \\
+                $\beta_1$ & 1.96 & 1.97 & 1.98 & 1.70 \\
+                $\beta_2$ & 2.88 & 2.95 & 3.01 & 3.00 \\
+                $\beta_3$ & 3.77 & 3.83 & 4.09 & 4.00 \\
                 \hline
                 \end{tabular}
                 \label{tab:appendix_params}
@@ -1970,7 +1947,6 @@ Also, for the application of Gaussian processes.
 
 
 - Questions
--- Should I explain read-noise leak and aliasing?
 -- Should we discuss the number of clumps using our model? Can our model estimate how many clumps in line of sight? (see fig. 4 for example.)
 % Haojie et al. ---> https://ui.adsabs.harvard.edu/abs/2025arXiv251017696H/abstract  
 -- Can I cite book pages? And not just the book itself!
