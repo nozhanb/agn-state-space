@@ -21,7 +21,7 @@ to the prior's edge.
 ## Parameters
 - beta_true: 3.0, 4.0
 - shift_term (SNR proxy): 1.0, 4.0, 7.0
-- tau prior: LogUniform(2, 80) -- edge referenced in the right panel is 80
+- tau prior: LogUniform(2, 80) -- the prior's upper edge (80) is marked on the plot
 - Model: `ar1_hmc_v2_widerprior.py` (widened mean_param prior,
   `Uniform(-10, 20)`, needed to avoid a prior-support failure at higher
   shift values)
@@ -68,14 +68,13 @@ resolve the underlying short-memory-vs-long-memory mismatch.
 
 ## LaTeX caption
 ```latex
-Posterior mean of $\tau$ (left) and its distance from the prior's upper
-edge, $80-\hat\tau$ (right), as a function of signal-to-noise ratio
+Posterior mean of $\tau$ as a function of signal-to-noise ratio
 (shift\_term proxy for source count rate), for $\beta=3$ and $\beta=4$
-\texttt{colorednoise} inputs. Higher SNR pushes $\tau$ \emph{closer} to
-the prior edge rather than away from it, indicating the $\tau$-pinning
-behaviour described in Appendix~\ref{app:recovery} is not resolved by
-additional information and instead reflects a structural mismatch
-between the short-memory AR(1) model and the long-memory
-\texttt{colorednoise} process. Signal-to-noise levels beyond shift=7
-could not be reliably sampled with the current implementation.
+\texttt{colorednoise} inputs, with the prior's upper edge (80) marked.
+Higher SNR pushes $\tau$ \emph{closer} to the prior edge rather than away
+from it, indicating this behaviour is not resolved by additional
+information and instead reflects a structural mismatch between the
+short-memory AR(1) model and the long-memory \texttt{colorednoise}
+process. Signal-to-noise levels beyond shift=7 could not be reliably
+sampled with the current implementation.
 ```

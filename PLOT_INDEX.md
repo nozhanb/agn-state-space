@@ -324,9 +324,8 @@ Script location  : plots/beta3_4_snr_trend/plot_beta3_4_snr_trend.py
 Data file(s)     : beta_3.0_shift_{1.0,4.0,7.0}.npz, beta_4.0_shift_{1.0,4.0,7.0}.npz
                    plots/beta3_4_snr_trend/data/ (copied from
                    code_backup/Claude_Beta_Recovery/Appendix_A/reproduction_2026-07-20/beta3_4_snr_sweep_v2_data/)
-Contents         : 2-panel figure. Left: tau posterior mean +/- std vs shift_term (SNR
+Contents         : Single-panel figure. tau posterior mean +/- std vs shift_term (SNR
                    proxy), for beta=3 and beta=4, with the prior's upper edge (80) marked.
-                   Right: distance from the prior edge (80 - tau_mean) vs shift_term.
 Purpose          : Appendix A colorednoise validation (app:recovery) follow-up -- tests
                    whether higher signal-to-noise relaxes the tau-pinning-at-prior-edge
                    behaviour seen for beta>2. Finding: it does not -- tau moves CLOSER to
