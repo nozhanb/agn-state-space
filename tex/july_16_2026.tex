@@ -659,12 +659,12 @@ In this section we present the validation process. First, we briefly explain the
 
 \subsection{Verification goal}
 \label{sec:verify}
-Earlier we showed how $C_t$ depends on $N_H$ and $K$ (see eq. \ref{eq:ssm_condition}). However, an important point to note is that there is no unique combination of $N_H$ and $K$ that generates the observed $C_t$. This is known as the "degeneracy" problem. This directly relates to the capability of our model in inferring the true value of the mean of both processes. In addition, knowing the true temporal correlation structure of $N_H$ and $K$ is of vital importance. If the model can reliably recover the true mean and temporal correlation structure of $N_H$ and $K$ only is it then that we can recover the true underlying process. In other words, we test the performance of our model in recovering $\mu_{NH}$, $\mu_K$, $\tau_{N_H}$, $\tau_K$, $\sigma_{N_H}^2$ and $\sigma_k^2$ which can uniquely describe the underlying $N_H(t)$ and $K(t)$ processes. \\
+Earlier we showed how $C_t$ depends on $N_H$ and $K$ (see eq. \ref{eq:ssm_condition}). However, an important point to note is that there is no unique combination of $N_H$ and $K$ that generates the observed $C_t$. This is known as the "degeneracy" problem. This directly relates to the capability of our model in inferring the true value of the mean of both processes. In addition, knowing the true temporal correlation structure of $N_H$ and $K$ is of vital importance. If the model can reliably recover the true mean and temporal correlation structure of $N_H$ and $K$ only is it then that we can recover the true underlying process. In other words, we test the performance of our model in recovering $\mu_{N_H}$, $\mu_K$, $\tau_{N_H}$, $\tau_K$, $\sigma_{N_H}^2$ and $\sigma_k^2$ which can uniquely describe the underlying $N_H(t)$ and $K(t)$ processes. \\
 
 \subsection{Synthetic data generation}
 \label{sec:synthetic_data}
 The verification process starts with generating a series of photon count time series, $C_ts$, to be used as ground truth. The $C_t$ generation process was explained in sec. \ref{sec:count_eq}. In the following we explain the range of values used in generating $C_t$. \\
-First, we need to calculate $\lambda_i$ according to eq. $\ref{eq:lambda_dis}$ and $\ref{eq:flux}$. In these equation we set $\Gamma$, $z$, and $N_G$ to 2, 0.0108, and $10^{22}$, respectively, while for $R_{ij}$, $A_{ij}$, $\Delta t$, and $\Delta E_j$ we used the primary and secondary information of Chandra observation of J09325962+0405062 with $RA = 143.248333$ and $DEC = 4.085014$. Also, photoelectric cross section ($\sigma_E$) was calculated according to table 2 of Morrison $\&$ McCammon (1983) for all 526 energy channels. Next, we generate a set of $N_H$ and $K$ processes according to Eqs. \ref{eq:ssm_NH} and \ref{eq:ssm_k} with t = 100 time steps. To generate these processes we set $\sigma_{N_H}^2$ and $\sigma_k^2$ to 0.1, $\tau_{N_H}$ and $\tau_K$ to \{2, 38, 50\}, $\mu_{NH}$ to \{$10^{19}$, $10^{20}$, $10^{21}$, $10^{22}$, $10^{23}$, $10^{24}$\} and $\mu_K$ to \{$10^{-3}$, $10^{-4}$, $10^{-5}$\}, respectively. At each time step t, the value of $\lambda_i$ is calculated according to eq. $\ref{eq:lambda_dis}$ for all 526 energy channels and for each energy channel a photon count $C_{ti}$ is sampled according to $C_{ti} \propto Poisson(\lambda_{ti})$. $C_{ti}$ is the input to our model. It is worth mentioning that for each combination we generated one thousand $C_{ti}$s and we picked one randomly as ground truth for that specific combination. Also, the values of $\mu$ and $\tau$ for both $N_H$ and $K$ were selected to ensure the total photon counts across all energy channels and 100 time steps falls between $10,000$ and $1,000,000$. To achieve this we sum $C_{ti}$s across all energy channels at each time step $t$ to obtain $C_t$ (see the first three columns and the last column of table 1). Three examples of simulated $C_t$ are shown in fig. ?. \\ 
+First, we need to calculate $\lambda_i$ according to eq. $\ref{eq:lambda_dis}$ and $\ref{eq:flux}$. In these equation we set $\Gamma$, $z$, and $N_G$ to 2, 0.0108, and $10^{22}$, respectively, while for $R_{ij}$, $A_{ij}$, $\Delta t$, and $\Delta E_j$ we used the primary and secondary information of Chandra observation of J09325962+0405062 with $RA = 143.248333$ and $DEC = 4.085014$. Also, photoelectric cross section ($\sigma_E$) was calculated according to table 2 of Morrison $\&$ McCammon (1983) for all 526 energy channels. Next, we generate a set of $N_H$ and $K$ processes according to Eqs. \ref{eq:ssm_NH} and \ref{eq:ssm_k} with t = 100 time steps. To generate these processes we set $\sigma_{N_H}^2$ and $\sigma_k^2$ to 0.1, $\tau_{N_H}$ and $\tau_K$ to \{2, 38, 50\}, $\mu_{N_H}$ to \{$10^{19}$, $10^{20}$, $10^{21}$, $10^{22}$, $10^{23}$, $10^{24}$\} and $\mu_K$ to \{$10^{-3}$, $10^{-4}$, $10^{-5}$\}, respectively. At each time step t, the value of $\lambda_i$ is calculated according to eq. $\ref{eq:lambda_dis}$ for all 526 energy channels and for each energy channel a photon count $C_{ti}$ is sampled according to $C_{ti} \propto Poisson(\lambda_{ti})$. $C_{ti}$ is the input to our model. It is worth mentioning that for each combination we generated one thousand $C_{ti}$s and we picked one randomly as ground truth for that specific combination. Also, the values of $\mu$ and $\tau$ for both $N_H$ and $K$ were selected to ensure the total photon counts across all energy channels and 100 time steps falls between $10,000$ and $1,000,000$. To achieve this we sum $C_{ti}$s across all energy channels at each time step $t$ to obtain $C_t$ (see the first three columns and the last column of table 1). Three examples of simulated $C_t$ are shown in fig. ?. \\ 
 
 \subsection{Inference}
 \label{sec:inference}
@@ -693,9 +693,9 @@ For the purpose of inference we follow a hierarchical Bayesian approach (see fig
 ]
 
 %% ── Hyperparameters for N_H (outside plate) ─────────────────────
-\node[param] (mu_nh)  at (0.0, 6.0) {$\mu_{\mathrm{NH}}$};
-\node[param] (sig_nh) at (1.6, 6.0) {$\sigma_{\mathrm{NH}}^2$};
-\node[param] (tau_nh) at (3.2, 6.0) {$\tau_{\mathrm{NH}}$};
+\node[param] (mu_nh)  at (0.0, 6.0) {$\mu_{N_H}$};
+\node[param] (sig_nh) at (1.6, 6.0) {$\sigma_{N_H}^2$};
+\node[param] (tau_nh) at (3.2, 6.0) {$\tau_{N_H}$};
 
 %% ── Hyperparameters for K (outside plate) ───────────────────────
 \node[param] (mu_k)  at (5.2, 6.0) {$\mu_K$};
@@ -738,7 +738,7 @@ For the purpose of inference we follow a hierarchical Bayesian approach (see fig
 %% ── AR(1) self-loops ─────────────────────────────────────────────
 \draw[arr]
     (nh.130) .. controls +(130:1.5) and +(50:1.5) ..
-    node[above, font=\small] {$\phi_{\mathrm{NH}}$}
+    node[above, font=\small] {$\phi_{N_H}$}
     (nh.50);
 
 \draw[arr]
@@ -774,7 +774,7 @@ inferred hyperparameters; the rectangle lists fixed instrument
 quantities (RMF, ARF, exposure time, energy bin widths). The plate
 encloses all quantities repeated over $T$ time steps. Curved
 self-arrows indicate AR(1) temporal dependence with autocorrelation
-coefficients $\phi_{\mathrm{NH}} = \exp(-1/\tau_{\mathrm{NH}})$ and
+coefficients $\phi_{N_H} = \exp(-1/\tau_{N_H})$ and
 $\phi_K = \exp(-1/\tau_K)$.}
 \label{fig:plate_diagram}
 \end{figure*}
@@ -791,7 +791,7 @@ p\!\left(\{K(t)\} \mid \mu\right)\cdot
 \end{split}
 \label{eq:bayes}
 \end{equation}
-where $\mu = (\Gamma, \mu_{\mathrm{NH}}, \mu_K, \tau_{\mathrm{NH}},  \tau_K, \sigma_{\mathrm{NH}}^2, \sigma_K^2)$. The four terms on the right-hand side are the prior $P(\mu)$, the AR(1) structured priors on the latent trajectories $p(\{N_H(t)\} \mid \mu)$ and $p(\{K(t)\} \mid \mu)$, and the Poisson likelihood $\mathcal{L}(C \mid \mu, \{N_H(t)\}, \{K(t)\})$, respectively. First we define a set of prior distributions over the parameters of interest (see Table~\ref{tab:priors}). \\
+where $\mu = (\Gamma, \mu_{N_H}, \mu_K, \tau_{N_H},  \tau_K, \sigma_{N_H}^2, \sigma_K^2)$. The four terms on the right-hand side are the prior $P(\mu)$, the AR(1) structured priors on the latent trajectories $p(\{N_H(t)\} \mid \mu)$ and $p(\{K(t)\} \mid \mu)$, and the Poisson likelihood $\mathcal{L}(C \mid \mu, \{N_H(t)\}, \{K(t)\})$, respectively. First we define a set of prior distributions over the parameters of interest (see Table~\ref{tab:priors}). \\
 
 \begin{table}
 \caption{Prior distributions of the model parameters.}
@@ -802,15 +802,15 @@ where $\mu = (\Gamma, \mu_{\mathrm{NH}}, \mu_K, \tau_{\mathrm{NH}},  \tau_K, \si
 Parameter & Distribution & Range / Parameters \\
 \hline
 $\Gamma$ & $\mathcal{U}$ & $[1.0,\,3.0]$ \\
-$\mu_{\mathrm{NH}}$ & $\mathcal{U}$ & $[15.0,\,25.0]$ \\
+$\mu_{N_H}$ & $\mathcal{U}$ & $[15.0,\,25.0]$ \\
 $\mu_{K}$ & $\mathcal{U}$ & $[-6,\,-2]$ \\
-$\ln \tau_{\mathrm{NH}}$ & $\mathcal{U}$ & $[\ln 2,\,\ln 80]$ \\
+$\ln \tau_{N_H}$ & $\mathcal{U}$ & $[\ln 2,\,\ln 80]$ \\
 $\ln \tau_{K}$ & $\mathcal{U}$ & $[\ln 2,\,\ln 80]$ \\
-$\sigma_{\mathrm{NH}}$ & $\mathcal{HN}$ & $0.5$ \\
+$\sigma_{N_H}$ & $\mathcal{HN}$ & $0.5$ \\
 $\sigma_{K}$ & $\mathcal{HN}$ & $0.5$ \\
 \hline
 \end{tabular}
-\tablefoot{$\mathcal{U}$ denotes the uniform distribution and $\mathcal{HN}$ the half-normal distribution. Please note that the prior places uniform density on $\ln \tau_{NH}$ and $\ln \tau_K$ over [$\ln 2$, $\ln 80$] which means $\tau_{N_H}$ and $\tau_K$ can range from 2 to 80 but are log-uniformly distributed, so that smaller values of $\tau_{N_H}$ and $\tau_K$ receive proportionally more prior probability than larger ones.}
+\tablefoot{$\mathcal{U}$ denotes the uniform distribution and $\mathcal{HN}$ the half-normal distribution. Please note that the prior places uniform density on $\ln \tau_{N_H}$ and $\ln \tau_K$ over [$\ln 2$, $\ln 80$] which means $\tau_{N_H}$ and $\tau_K$ can range from 2 to 80 but are log-uniformly distributed, so that smaller values of $\tau_{N_H}$ and $\tau_K$ receive proportionally more prior probability than larger ones.}
 \end{table}
 The structured priors on the latent trajectories follow from the AR(1) state equation and are given by,
 \begin{equation}
@@ -819,9 +819,9 @@ p\!\left(\{N_H(t)\} \mid \mu\right)
 = \;& p\!\left(N_H(1)\right) \\
 &\times \prod_{t=2}^{T}
 \mathcal{N}\!\left(N_H(t);\;
-\mu_{\mathrm{NH}} + \phi_{\mathrm{NH}}\!\left(N_H(t-1)
-- \mu_{\mathrm{NH}}\right),\;
-\sigma_{\mathrm{NH}}^2\right)
+\mu_{N_H} + \phi_{N_H}\!\left(N_H(t-1)
+- \mu_{N_H}\right),\;
+\sigma_{N_H}^2\right)
 \end{split}
 \label{eq:ar1_prior_nh}
 \end{equation}
@@ -835,7 +835,7 @@ p\!\left(\{K(t)\} \mid \mu\right)
 \sigma_{K}^2\right)
 \label{eq:ar1_prior_k}
 \end{equation}
-where $\phi_{\mathrm{NH}} = \exp(-1/\tau_{\mathrm{NH}})$ and 
+where $\phi_{N_H} = \exp(-1/\tau_{N_H})$ and 
 $\phi_K = \exp(-1/\tau_K)$. Next, we define the likelihood function as,
 
 \begin{equation}
@@ -1569,7 +1569,7 @@ Finally, the estimated cloud size for this observation falls within the acceptab
 
 \subsubsection*{Observation 2}
 Our estimated $\tau_{N_H} = 0.072$ days for observation 2 is a factor of four smaller than the minimum possible eclipse duration, 0.267 days, estimated according to the method of \citet{Pietrini2024}. This might seem like a wrong estimate, however, we argue that this is not a mistake and in fact it is the capability of our model in recovering eclipse durations as short as $\approx 100 $ minutes. This apparent contradiction originates from the fact that the method of \citet{Pietrini2024} is based on the analysis of the statistically significant HR variations while our method has the advantage that it uses the recovered $N_H$ curve directly to estimate the eclipse duration. \citet{Pietrini2024} state that their method is sensitive to occultations with durations between $\approx 10$ ks and $\approx 1$ day (see \citet{Torricelli2014} for a detailed discussion of the HR-based method). Thus, we argue that our method is capable of detecting eclipses that are shorter than the minimum duration suggested by HR-based method of \citet{Pietrini2024} and \citet{Torricelli2014}. \\
-Looking at table \ref{tab:cloud_properties}, we can see there is not cloud size for observation 2. The reason is that inserting the values of $\tau_{NH}$ for this observation along with clouds velocity yields a negative value for cloud size, which is unphysical. This negative value is the result of our set of assumptions above that the cloud is spherical and $d = 0$. If we relax our assumption on $d$ and allow for non-central transit we can solve for $d$ using equation 2 of \citet{Pietrini2024} with the assumption that $f_{abs} = R_1/R_X = 0.4$ which is the minimum cloud size for NGC 1365 and one reaches $d = 1.348 R_X$. Given that for an eclipse to occur at all, there must be an overlap between the source and the eclipsing cloud on the plane of sky which requires $d < 1 + f_{abs}$ (the condition for two circles $R_X$ and $R_{cloud}$ to overlap). Our $d = 1.348$ passes this condition by a very small margin of $0.052$ which means the eclipsing cloud of size $0.4R_X$ is grazing the source on the plane of sky. Interestingly, larger clouds can reproduce the same $\tau_{N_H} = 6.2$ ks at correspondingly larger impact parameters, always with a small but nonzero covering fraction. \\
+Looking at table \ref{tab:cloud_properties}, we can see there is not cloud size for observation 2. The reason is that inserting the values of $\tau_{N_H}$ for this observation along with clouds velocity yields a negative value for cloud size, which is unphysical. This negative value is the result of our set of assumptions above that the cloud is spherical and $d = 0$. If we relax our assumption on $d$ and allow for non-central transit we can solve for $d$ using equation 2 of \citet{Pietrini2024} with the assumption that $f_{abs} = R_1/R_X = 0.4$ which is the minimum cloud size for NGC 1365 and one reaches $d = 1.348 R_X$. Given that for an eclipse to occur at all, there must be an overlap between the source and the eclipsing cloud on the plane of sky which requires $d < 1 + f_{abs}$ (the condition for two circles $R_X$ and $R_{cloud}$ to overlap). Our $d = 1.348$ passes this condition by a very small margin of $0.052$ which means the eclipsing cloud of size $0.4R_X$ is grazing the source on the plane of sky. Interestingly, larger clouds can reproduce the same $\tau_{N_H} = 6.2$ ks at correspondingly larger impact parameters, always with a small but nonzero covering fraction. \\
 Similar to observation 1 the power law flux of the observation 2 in \citet{Rivers2015} is only based on four data points. Thus, a direct comparison is hard, however, we can see our estimated intrinsic luminosity during observation 2 matches well with that of the Rivers et al. This is especially visible in the third data point of their plot which shows a sudden dip around 50 ks which is clearly captured in our estimated luminosity plot (see Figure \ref{fig:ngc1365_nh_lum_timeseries} and Figure 3 of \citealt{Rivers2015}). \\
 
 \subsubsection*{Observation 3}
@@ -1654,7 +1654,7 @@ To accomplish such an undertaking one has to collect a statistically meaningful 
 \subsubsection{The case for $\tau$}
 Earlier, in sec. \ref{sec:verification_results}, we presented the results on the recovery of different combinations of parameters of interest. We noted for observations with a length of $T<10\tau$ the true $\tau$ could not be constrained well (see table \ref{tab:light_curve_sim_table}). In other words, the larger the difference between $T$ and $\tau$ the wider the confidence interval on the recovered $\tau$. This behaviour is already known and is discussed in detail in \citet{Kozlowski2017}. \citet{Kozlowski2017} finds that the minimum length of observation required, $T$, to constrain the decorrelation timescale, $\tau$, is $T \ge 10 \tau$ and for observation where this condition is not met the inferred $\tau$, will fall in the so-called "unconstrained" region. \citet{Kozlowski2017} argue that the inferred decorrelation timescales that fall in this region will have a distribution with a median equal to $20\% - 30\%$ of the length of the observation regardless of the true underlying decorrelation timescale. \citet{Kozlowski2017} states that the main issue is that for processes where PSD $\propto \nu^{-\beta}$ if $T < 10 \tau$ the flat part of the PSD is not explored, which in turn leads to an inaccurate estimate of $\tau$. \\
 Looking at our results we observe that the length of observations 1, 3, and 4 are significantly lower than the $10\tau$ threshold while observation 2 passes the threshold criterion. Looking at Fig. \ref{fig:ngc1365_nh_lum_psd} we also see that none of the estimated PSD of $N_H$ and intrinsic luminosity extends to the flat part of the spectrum. Only in observation 2 there is a slight coverage of the flat part of the spectrum. Also, there is a clear constant off set between the estimated PSD and the median PSD along with the flattening of the PSD towards higher frequencies which signify power leakage (see sec. \ref{sec:psd_BH_properties}). This may imply that our results are not valid, however, we argue against it with the following reasons. \\
-First, we point out that of the three observations with $T < 10\tau$ none of them has a $\tau$ that is $20\% - 30\%$ of the length of the observation. This is in direct contrast with the finding of \citet{Kozlowski2017}. Second, the $T \ge 10 \tau$ threshold proposed by \citet{Kozlowski2017} is the result of DRW model applied to photometric data whereas we use spectroscopic data and both $N_H(t)$ and $K(t)$ are constrained by the photon counts across multiple energy channels. In other words, our spectroscopic data carry more information than photometric data which in turns allows us to constrain the parameters of the model even more. Extending our analysis to higher energy channels, covered by NuSTAR, would likely allow us to constrain $\tau$ even better by breaking the $\Gamma-f_{cov}-NH$ degeneracy. Third, $T \ge 10 \tau$ is not a hard criterion. This means failing to meet this criterion does not mean failure in estimating the true value of $\tau$. It simply means the confidence interval on $\tau$ would be wider which in turn means a less accurate, and not necessarily wrong, estimate of $\tau$. Finally, our strongest argument in support of our inferred $\tau$ values is the confirmation we achieved by comparing our results with those of other studies despite other studies using different methodologies (see sec. \ref{sec:discuss_hmc_diagnostic}). For instance, our estimate of $\tau \approx 100$ ks for observation 3 is in excellent agreement with the timescale estimate of drop in $N_H$ by \citet{Braito2014}. \\
+First, we point out that of the three observations with $T < 10\tau$ none of them has a $\tau$ that is $20\% - 30\%$ of the length of the observation. This is in direct contrast with the finding of \citet{Kozlowski2017}. Second, the $T \ge 10 \tau$ threshold proposed by \citet{Kozlowski2017} is the result of DRW model applied to photometric data whereas we use spectroscopic data and both $N_H(t)$ and $K(t)$ are constrained by the photon counts across multiple energy channels. In other words, our spectroscopic data carry more information than photometric data which in turns allows us to constrain the parameters of the model even more. Extending our analysis to higher energy channels, covered by NuSTAR, would likely allow us to constrain $\tau$ even better by breaking the $\Gamma-f_{cov}-N_H$ degeneracy. Third, $T \ge 10 \tau$ is not a hard criterion. This means failing to meet this criterion does not mean failure in estimating the true value of $\tau$. It simply means the confidence interval on $\tau$ would be wider which in turn means a less accurate, and not necessarily wrong, estimate of $\tau$. Finally, our strongest argument in support of our inferred $\tau$ values is the confirmation we achieved by comparing our results with those of other studies despite other studies using different methodologies (see sec. \ref{sec:discuss_hmc_diagnostic}). For instance, our estimate of $\tau \approx 100$ ks for observation 3 is in excellent agreement with the timescale estimate of drop in $N_H$ by \citet{Braito2014}. \\
 Overall, our methodology is capable of recovering $N_H(t)$ and $K(t)$ that are in good agreement with the findings of other studies, however, observations with $T < 10 \tau$ require cautious interpretation of $\tau_{N_H}$. Furthermore, our model needs to be tested on a more diverse set of objects such as XRBs and AGNs and at different redshifts for further verification of its performance. \\
 
 \subsubsection{The case for $\beta$}
