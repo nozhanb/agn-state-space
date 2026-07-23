@@ -315,6 +315,40 @@ Median shifts    : Obs 1: ΔΓ = −0.023, Δμ_NH = −0.004
                    Obs 4: ΔΓ = −0.017, Δμ_NH = +0.014
 NPZ keys used    : gamma_values → Γ posterior samples; nH_shift → μ_NH posterior samples
 
+### PLOT: appendix_a (Fig. A.1 + Fig. A.2)
+Name             : app_A_light_curves.pdf / .png  (Fig. A.1)
+                   app_A_fig_beta_4_v2.pdf / .png  (Fig. A.2)
+Output location  : plots/appendix_a/app_A_light_curves.pdf
+                   plots/appendix_a/app_A_fig_beta_4_v2.pdf
+Script name      : plot_light_curves.py (Fig. A.1), plot_psd_beta4_recovery.py (Fig. A.2)
+Script location  : plots/appendix_a/plot_light_curves.py
+                   plots/appendix_a/plot_psd_beta4_recovery.py
+Data file(s)     : Appendix_A_..._beta_{1.7,3.0,4.0}_and_1000_time_step_and_7_unit_shift_v2scan.npz
+                   plots/appendix_a/data/ (copied from
+                   code_backup/Claude_Beta_Recovery/Appendix_A/reproduction_2026-07-20/T1000_v2_scan_data/)
+Contents         : Fig. A.1 -- three raw (pre-AR(1), pre-Poisson) colorednoise light
+                   curves, beta=1.7/3/4, T=1000, mean-subtracted, one panel.
+                   Fig. A.2 -- single-draw PSD recovery example for beta=4: unbinned
+                   periodogram (black), 9-bin average with error bars (orange),
+                   power-law+constant fit (red dashed), true input colorednoise PSD
+                   (blue), log-log axes.
+Purpose          : Regenerated 2026-07-23 -- both figures previously referenced by the
+                   paper were not resolving in tex/ (missing files), and separately
+                   needed to reflect the AR(1) initialization bugfix
+                   (ar1_hmc_v2.py replacing simple_HMC.py, see
+                   CORRECTION_LOG_2026-07-21.md) rather than older/stale data.
+Key numbers      : Fig. A.2 single-draw (draw index 0) fitted beta = 3.82, close to
+                   Table A.1's current published median for beta=4 (3.83) -- a
+                   reassuring but incidental consistency check between this new
+                   figure and the table (built from a different, separate script and,
+                   for the table's own provenance, possibly different underlying
+                   data -- see psd_beta_recovery_per_draw_binned_fit.py's docstring).
+Note             : Fig. A.2's binning/fit methodology is copied verbatim from
+                   psd_beta_recovery_per_draw_binned_fit.py for consistency, including
+                   its known cosmetic quirk of very large error bars on 1-2 binned
+                   points (linearized log-space error propagation, exaggerated when
+                   within-bin periodogram scatter is large relative to the bin mean).
+
 ### PLOT: beta3_4_snr_trend
 Name             : beta3_4_snr_trend.pdf / beta3_4_snr_trend.png
 Output location  : plots/beta3_4_snr_trend/beta3_4_snr_trend.pdf
