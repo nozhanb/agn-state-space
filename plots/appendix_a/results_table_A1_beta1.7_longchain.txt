@@ -1,0 +1,2 @@
+beta_true  p5  median  p95  n_draws_used  thin
+1.7  1.587  1.591  1.595  400  50
