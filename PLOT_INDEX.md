@@ -678,8 +678,14 @@ Key finding      : beta=8.0's recovered mean (3.30) is LOWER than beta=4.0's (3.
                    below true, sign-test p~2e-12). beta=1.7 remains unbiased (p=0.24). beta=3.0 is
                    a weaker, intermediate case (t-test p=0.005, sign-test p=0.08 -- not conclusive
                    on its own). Full detail: plots/appendix_a/README_beta_recovery_calibration_squares_only.md
-Status           : Generated 2026-07-25. NOT YET inserted into the paper. One already-published
-                   number was updated to stay consistent with the N=40 beta=1.7 result: the
-                   Discussion paragraph in tex/july_16_2026.tex citing the N=20 beta=1.7 ensemble
-                   (mean=1.71/median=1.69/std=0.16) was updated to the N=40 numbers
-                   (mean=1.67/median=1.68/std=0.17).
+Status           : Generated 2026-07-25, inserted into the paper 2026-07-26 (Appendix A -- new
+                   paragraph, this figure, and tab:beta_N40_ensemble; main text "case for beta";
+                   Conclusion). One already-published number was updated to stay consistent with
+                   the N=40 beta=1.7 result: the paragraph in tex/july_16_2026.tex citing the N=20
+                   beta=1.7 ensemble (mean=1.71/median=1.69/std=0.16) was updated to the N=40
+                   numbers (mean=1.67/median=1.68/std=0.17). A follow-up test (widened tau prior,
+                   2->500, beta=4/8 only, N=10 each) ruled out the tau-prior boundary as the
+                   explanation for the beta=8-vs-beta=4 reversal -- both cases' tau posteriors move
+                   to the same new value (~460-470) with no change in recovered beta for either.
+                   Also cited in the Appendix A addition. Full detail:
+                   plots/appendix_a/beta3_4_N20_ensemble/README_widertauprior_test.md

@@ -98,6 +98,18 @@ would need its own dedicated check (e.g. inspecting individual beta=8
 periodogram fits the way the beta=4 case was inspected) before being
 stated as an explanation anywhere in the paper.
 
+**Follow-up (2026-07-25/26): the tau-prior-boundary explanation has been
+tested and ruled out.** beta=4 and beta=8's tau/mean/var posteriors are
+statistically indistinguishable under the standard prior (both pinned
+at ~79.5) -- raising the question of whether the shared 80-cap was
+masking a real difference in how much tau each wants. Widening tau's
+prior upper bound to 500 moved both cases to a new, still mutually
+indistinguishable value (~460-470), with no meaningful change in
+recovered beta for either (beta=4: 3.54->3.56; beta=8: 3.30->3.33). Full
+detail in `README_widertauprior_test.md`. The reversal remains
+unexplained; the periodogram-fit-sensitivity hypothesis above is
+untested and still the leading candidate, but is not confirmed.
+
 ## Scripts
 - `regenerate_ensemble_realizations.py` (in `Appendix_A/reproduction_2026-07-20/`) -- parameterized generator, used for all four top-up/fresh runs
 - `fit_ensemble_N40_all_betas.py` (same directory) -- fitting + statistics, all four beta values
@@ -135,4 +147,6 @@ this regime. Dashed line: perfect recovery.
 ```
 
 ## Status
-Generated 2026-07-25. Not yet inserted into the paper.
+Generated 2026-07-25. Inserted into the paper 2026-07-26 (Appendix A,
+main text "case for beta", Conclusion) alongside the widened-tau-prior
+follow-up (see `README_widertauprior_test.md`).
