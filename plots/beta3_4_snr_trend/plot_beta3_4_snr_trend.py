@@ -30,10 +30,10 @@ for beta_true in BETAS:
                 color=COLORS[beta_true], label=fr"$\beta$={beta_true}", linewidth=2)
 
 ax.axhline(80, color="purple", linestyle="-.", alpha=0.6, label="prior upper edge (80)")
-ax.set_xlabel("shift_term (SNR proxy)", fontsize=13)
-ax.set_ylabel(r"$\tau$ posterior mean $\pm$ std", fontsize=13)
-ax.legend(fontsize=11)
-ax.tick_params(labelsize=11)
+ax.set_xlabel("shift_term (SNR proxy)", fontsize=15)
+ax.set_ylabel(r"$\tau$ posterior mean $\pm$ std", fontsize=15)
+ax.legend(fontsize=13)
+ax.tick_params(labelsize=13, length=7, width=1.3)
 
 fig.tight_layout()
 

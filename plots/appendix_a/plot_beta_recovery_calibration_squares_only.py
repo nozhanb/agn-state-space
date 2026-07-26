@@ -69,10 +69,10 @@ ax.errorbar(beta_true_vals, [ensemble_mean[bt] for bt in beta_true_vals],
 
 ax.set_xlim(lims)
 ax.set_ylim(lims)
-ax.set_xlabel(r"true $\beta$", fontsize=13)
-ax.set_ylabel(r"recovered $\beta$", fontsize=13)
-ax.legend(fontsize=11, loc="upper left")
-ax.tick_params(labelsize=11)
+ax.set_xlabel(r"true $\beta$", fontsize=15)
+ax.set_ylabel(r"recovered $\beta$", fontsize=15)
+ax.legend(fontsize=13, loc="upper left")
+ax.tick_params(labelsize=13, length=7, width=1.3)
 ax.set_aspect("equal")
 
 fig.tight_layout()

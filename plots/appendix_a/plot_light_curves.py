@@ -33,10 +33,10 @@ for beta_true in BETAS:
     ax.plot(numpy.arange(len(flux)), flux, color=COLORS[beta_true], linewidth=1.2,
              label=fr"$\beta$={beta_true:g}")
 
-ax.set_xlabel("Time", fontsize=13)
-ax.set_ylabel("Flux", fontsize=13)
-ax.legend(fontsize=11)
-ax.tick_params(labelsize=11)
+ax.set_xlabel("Time", fontsize=15)
+ax.set_ylabel("Flux", fontsize=15)
+ax.legend(fontsize=13)
+ax.tick_params(labelsize=13, length=7, width=1.3)
 fig.tight_layout()
 
 base_name = "app_A_light_curves"

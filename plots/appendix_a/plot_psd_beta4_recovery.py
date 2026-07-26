@@ -110,12 +110,12 @@ ax.plot(input_freq, input_psd, "-", color="steelblue", linewidth=2, alpha=0.8,
 
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("Frequency [Hz]", fontsize=13)
-ax.set_ylabel("Power Spectral Density", fontsize=13)
+ax.set_xlabel("Frequency [Hz]", fontsize=15)
+ax.set_ylabel("Power Spectral Density", fontsize=15)
 ax.minorticks_on()
-ax.tick_params(which="major", length=8, width=1.5, labelsize=11)
-ax.tick_params(which="minor", length=5, width=1.0)
-ax.legend(fontsize=11)
+ax.tick_params(which="major", length=9, width=1.7, labelsize=13)
+ax.tick_params(which="minor", length=6, width=1.2)
+ax.legend(fontsize=13)
 fig.tight_layout()
 
 base_name = "app_A_fig_beta_4_v2"
