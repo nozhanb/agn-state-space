@@ -35,10 +35,10 @@
 \usepackage{booktabs} % for the HMC convergence summary table of NH application.
  
 % For hyper referencing
-%\usepackage[colorlinks=true,
-%            linkcolor=blue,
-%            citecolor=blue,
-%            urlcolor=blue]{hyperref}
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            citecolor=blue,
+            urlcolor=blue]{hyperref}
 
 \begin{document} 
 
@@ -57,7 +57,7 @@
    \institute{...\\
               \email{nozhan.balafkan@gmail.com}
          \and
-             Max-Planck-Institut für extraterrestrische Physik, Garching\\
+             Max-Planck-Institut für extraterrestrische Physik, Garching\\
              \email{jbuchner@mpe.mpg.de}
              \thanks{The university of heaven temporarily does not
                      accept e-mails}
@@ -1239,8 +1239,8 @@ For the purpose of this analysis we used NGC 1365. The reasoning behind the choi
 In order to make our results comparable we used the same observation periods of NGC 1365 that other studies used. There are four different observation periods that cover different states of the object (see table \ref{tab:ngc1365}). The data reduction was done using SAS 21.0.0 and HEASoft 6.32.1. We extracted the source and background regions by drawing circular regions with radii 40 and 60 arcsec, respectively. Next, we screened each observation for flaring periods using the standard EPIC-pn procedure. We extracted the energy band that covers 10-12 keV and monitored its count rate over the course of observation period and excluded the time intervals during which the count rate exceeded $0.40$\,ct\,s$^{-1}$. This was done using SAS task \texttt{tabgtigen}, producing the good time intervals (GTI) listed in Table~\ref{tab:ngc1365}. Finally, we binned the extracted spectrum with bin sizes of 2 ks to extract the final light curve over which we ran the inference. It is important to note that 2 ks is a nominal value and each bin contains less than 2 ks so we set the threshold to 1 ks and bins with less than 1 ks were dropped. Of the removed bins, none of them were in the middle of the observation intervals and all were on either the very beginning or end of the observation intervals (see table \ref{tab:ngc1365} for the final number of bins in each observation). \\
 \subsubsection{Results}
 \label{sec:ngc1365_results}
-We note that our goal is to demonstrate the capability of our framework in recovering the PSD and the variability of $N_H(t)$ and $K(t)$, simultaneously. To this end, we limited the energy range to $3$ - $10$ keV to avoid the complications of modelling the soft emissions below this energy range. Also, we did not include Fe $K\alpha$ line at 6.4 keV and other reflection components. In accordance with other studies, we added a fixed full covering factor (in units of $N_H = 10^{22}$ $cm^{-2}$) taken from table 2 of \citet{Rivers2015}, and a partial covering factor $f_{\mathrm{cov}}$, \footnote{\href{https://heasarc.gsfc.nasa.gov/docs/software/xspec/manual/XSmodelPcfabs.html}{XSPEC pcfabs model}} as a free parameter to be estimated. We took $tbabs$ × $zphabs$ × $zpcfabs$ × $zpowerlw$ as the final spectral model and applied our framework to each observation separately. We ran HMC on each observation with 3000 warm-up steps and 2000 main samples. The results are shown in table \ref{tab:ngc1365_results}. \\
-Fig. \ref{fig:ngc1365_nh_timeseries} shows the inferred $N_H$ processes for the four different observations. It is immediately clear that each of the recovered AR(1) processes show a different pattern. For instance, $N_H$ in observation 2 shows a very stochastic behaviour around $\log_{10}(\bar{N}_H/\mathrm{cm}^{-2}) \approx 23.3$ with short amplitudes which signals a short varying process while $N_H$ curve in observation 3 shows a relatively monotonic decline. This rapid decline in observation 3 along with our simplified spectral model posed a challenge to HMC to converge to physically meaningful values of $N_H$. To prevent this, we impose a soft penalisation on $log_{10}(N_H/cm^{-2})$ above 25: 
+We note that our goal is to demonstrate the capability of our framework in recovering the PSD and the variability of $N_H(t)$ and $K(t)$, simultaneously. To this end, we limited the energy range to $3$ - $10$ keV to avoid the complications of modelling the soft emissions below this energy range. Also, we did not include Fe $K\alpha$ line at 6.4 keV and other reflection components. In accordance with other studies, we added a fixed full covering factor (in units of $N_H = 10^{22}$ $cm^{-2}$) taken from table 2 of \citet{Rivers2015}, and a partial covering factor $f_{\mathrm{cov}}$, \footnote{\href{https://heasarc.gsfc.nasa.gov/docs/software/xspec/manual/XSmodelPcfabs.html}{XSPEC pcfabs model}} as a free parameter to be estimated. We took $tbabs$ $\times$ $zphabs$ $\times$ $zpcfabs$ $\times$ $zpowerlw$ as the final spectral model and applied our framework to each observation separately. We ran HMC on each observation with 3000 warm-up steps and 2000 main samples. The results are shown in table \ref{tab:ngc1365_results}. \\
+Fig. \ref{fig:ngc1365_nh_lum_timeseries} shows the inferred $N_H$ processes for the four different observations. It is immediately clear that each of the recovered AR(1) processes show a different pattern. For instance, $N_H$ in observation 2 shows a very stochastic behaviour around $\log_{10}(\bar{N}_H/\mathrm{cm}^{-2}) \approx 23.3$ with short amplitudes which signals a short varying process while $N_H$ curve in observation 3 shows a relatively monotonic decline. This rapid decline in observation 3 along with our simplified spectral model posed a challenge to HMC to converge to physically meaningful values of $N_H$. To prevent this, we impose a soft penalisation on $log_{10}(N_H/cm^{-2})$ above 25: 
 
 \begin{equation}
 \log p_{\rm wall}(\mathbf{y}_{N_{\rm H}}) = -100 \sum_{t=1}^{T} \left[\max\!\left(0,\, y_{N_{\rm H},t} - 25\right)\right]^2
@@ -1548,7 +1548,7 @@ Additionally, to compare our inferred results with those of the other studies we
 \subsection{The four observations as distinct absorber regimes: cloud geometry and crossing timescales}
 \label{sec:discuss_hmc_diagnostic}
 % Ricci et al. 2017 ---> doi:10.1093/mnrasl/slx103
-Our model has been able to recover the time variability of $N_H$ across the four observation intervals (Fig. \ref{fig:ngc1365_nh_timeseries}). \citet{Pietrini2019} developed an analytical model of the minimum and maximum projected radius of the X-ray absorbing portion of the eclipsing clouds in the BLR and tested their model on NGC 1365 and several other objects. They define the minimum radius to be $R_1 = 0.4$ $R_X$ where $R_X$ is the radius of the X-ray emitting region. \citet{Pietrini2019} define the upper limit for the radius, $R_2$ and \citet{Pietrini2024} find $R_2/R_X=23.7$ for NGC 1365. Then, following \citet{Torricelli2014}, $R_X \approx 2.5 R_S$ where $R_S$ is given as follows, 
+Our model has been able to recover the time variability of $N_H$ across the four observation intervals (Fig. \ref{fig:ngc1365_nh_lum_timeseries}). \citet{Pietrini2019} developed an analytical model of the minimum and maximum projected radius of the X-ray absorbing portion of the eclipsing clouds in the BLR and tested their model on NGC 1365 and several other objects. They define the minimum radius to be $R_1 = 0.4$ $R_X$ where $R_X$ is the radius of the X-ray emitting region. \citet{Pietrini2019} define the upper limit for the radius, $R_2$ and \citet{Pietrini2024} find $R_2/R_X=23.7$ for NGC 1365. Then, following \citet{Torricelli2014}, $R_X \approx 2.5 R_S$ where $R_S$ is given as follows, 
 \begin{equation}
 \label{eq:schild_radius}
 R_S = 2GM_{BH}/c^2.
