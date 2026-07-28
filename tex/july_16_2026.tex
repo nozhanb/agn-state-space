@@ -33,6 +33,7 @@
 \usetikzlibrary{positioning, backgrounds}
 
 \usepackage{booktabs} % for the HMC convergence summary table of NH application.
+\usepackage{placeins} % \FloatBarrier
 
 % Relax LaTeX's default float-placement limits -- this document has many
 % large figure*/table* floats, and the defaults are too conservative for
@@ -1551,6 +1552,7 @@ $1.1\times10^{22}$\,cm$^{-2}$ (Obs\,3).}
 \end{table*}
 
 
+\FloatBarrier
 \section{Discussion}
 \label{sec:discussion}
 Earlier we discussed the importance of X-ray variability and how it provides us with the unique opportunity to test our models of the radiation processes and formation and destruction of gas clouds and winds in the vicinity of BHs. In this work we presented a rather different approach to modeling the X-ray variability where we showed we can simultaneously recover the PSD of the observed light curve along with modeling the behaviour of $N_H(t)$ in the form of an AR(1) process over the course of the entire observation while previous methods only provide a point estimation of $N_H(t)$ for the entire observation duration. At the core of our approach is the concept of state-space modelling where $N_H(t)$ and $K(t)$ are treated as latent variables and photon counts as observed dependent variable. The treatment of $N_H(t)$ as an AR(1) provides us with a new tool to shed light on topics such as geometry, location, homogeneity, and structure of the absorbers. Specifically, a unique advantage of our model is that it provides a posterior distribution on the $\tau$ and $\sigma$ parameters of both $N_H(t)$ and $K(t)$ processes. These parameters can be used in interpretation of the variability of the absorber and corona, respectively (see below). \\
