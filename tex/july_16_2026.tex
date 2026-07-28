@@ -1736,7 +1736,7 @@ Add a software paragraph similar to the one below
             \begin{equation}
             \log(P) = \log\left(a f^{-\beta} + c\right)
             \end{equation}
-            where \( P \) is the power, \( a \) is the coefficient, \( \beta \) is the power-law index, and \( c \) is a constant that sets the noise floor (plateau) the PSD approaches at high frequency (see Fig.~A.2). The most direct approach would be to fit this curve to the unbinned periodogram. However, this does not yield an accurate fit because periodograms follow a chi-square distribution with two degrees of freedom at a given frequency (see \citet{BarretVaughan2012}). To overcome this difficulty, we smoothed our periodograms by binning the frequencies into 9 segments and averaging the PSD within each segment, following \citet{Vaughan2003}, so that the resulting PSD in each bin approximately follows a normal distribution according to the Central Limit Theorem (CLT). Coarser binning (9 segments) was necessary to ensure every bin contained more than one data point, since finer binning left the lowest-frequency bins with only a single data point; with 9 bins, the first bin contains two data points and the highest-frequency bin contains 270. We fit each periodogram using \texttt{curve\_fit} from \texttt{scipy.optimize}; the true power-law index falls outside the recovered [5\%-95\%] credible interval for all three cases (see table. A1) -- for $\beta = 1.7$ consistent with realisation-to-realisation scatter in the periodogram estimator rather than a systematic bias, and for $\beta = 3$ and $\beta = 4$ reflecting the AR(1) model's structural inability to exceed an asymptotic PSD slope of 2 (see sec.~\ref{sec:verification_results_psd}).\footnote{An independent test using 40 freshly generated colorednoise realizations at $\beta = 1.7$ (fit directly, without Poisson sampling or AR(1) modeling) gives a median recovered $\beta$ of 1.60 and a mean of 1.68 (range 1.30--3.69 across the 40 draws), confirming that the single-realization result in Table~\ref{tab:appendix_params} sits within the range of ordinary periodogram-estimator scatter rather than reflecting a modeling bias.} Because this fit is repeated independently for every posterior draw rather than once on a single representative trajectory, the resulting spread across draws is itself a direct, model-based estimate of the uncertainty on the recovered power-law index, obtained at no additional computational cost beyond the state-space inference already performed for other purposes. %In Eq. (A1) the power-law term inside the logarithm explains the long term variability of the parameter of interest while the intercept term explains the behaviour of the parameter of interest at higher frequencies where the Poisson noise dominates the process.            
+            where \( P \) is the power, \( a \) is the coefficient, \( \beta \) is the power-law index, and \( c \) is a constant that sets the noise floor (plateau) the PSD approaches at high frequency (see Fig.~A.2). The most direct approach would be to fit this curve to the unbinned periodogram; however, this does not yield an accurate fit because periodograms follow a chi-square distribution with two degrees of freedom at a given frequency (see \citet{BarretVaughan2012}). Binning the frequencies into 9 coarser, logarithmically-spaced segments (following \citet{Vaughan2003}) yields a more reliable fit. We fit each periodogram using \texttt{curve\_fit} from \texttt{scipy.optimize}; the true power-law index falls outside the recovered [5\%-95\%] credible interval for all three cases (see table. A1) -- for $\beta = 1.7$ consistent with realisation-to-realisation scatter in the periodogram estimator rather than a systematic bias, and for $\beta = 3$ and $\beta = 4$ reflecting the AR(1) model's structural inability to exceed an asymptotic PSD slope of 2 (see sec.~\ref{sec:verification_results_psd}).\footnote{An independent test using 40 freshly generated colorednoise realizations at $\beta = 1.7$ (fit directly, without Poisson sampling or AR(1) modeling) gives a median recovered $\beta$ of 1.60 and a mean of 1.68 (range 1.30--3.69 across the 40 draws), confirming that the single-realization result in Table~\ref{tab:appendix_params} sits within the range of ordinary periodogram-estimator scatter rather than reflecting a modeling bias.} Because this fit is repeated independently for every posterior draw rather than once on a single representative trajectory, the resulting spread across draws is itself a direct, model-based estimate of the uncertainty on the recovered power-law index, obtained at no additional computational cost beyond the state-space inference already performed for other purposes. %In Eq. (A1) the power-law term inside the logarithm explains the long term variability of the parameter of interest while the intercept term explains the behaviour of the parameter of interest at higher frequencies where the Poisson noise dominates the process.            
 
             \begin{table}[h]
                 \caption{Parameter estimates and true values.}
@@ -1755,34 +1755,34 @@ Add a software paragraph similar to the one below
 
             The constant $c$ is retained in Eq.~\ref{eq:periodogram_fit} to capture the flattening of the PSD at high frequencies, where Poisson counting noise and red-noise leakage from the AR(1) process dominate over the power-law component; omitting it biases the recovered $\beta$ toward flatter values (see sec.~\ref{sec:verification_results_psd} for a full discussion, and \citealt{Alston2019} for a similar constant term used to account for the Poisson-noise plateau).
 
-            To test whether the $\tau$-pinning-at-the-prior-edge behaviour described in sec.~\ref{sec:verification_results_psd} could be resolved with additional information, we repeated the $\beta = 3$ and $\beta = 4$ validation across a range of signal-to-noise ratios, using a count-rate proxy \texttt{shift\_term} (shift = 1, 4, 7). Table~\ref{tab:beta34_snr_sweep} and Fig.~\ref{fig:beta34_snr_trend} show that higher signal-to-noise pushes the posterior mean of $\tau$ closer to the prior's upper edge (80) rather than away from it, for both $\beta$ values -- the opposite of what an information-deficit explanation would predict. Signal-to-noise levels beyond shift = 7 could not be reliably sampled with the current implementation (a numerical sampling pathology in the increasingly peaked likelihood, rather than a property of the underlying degeneracy) and are therefore excluded from this table.
+            To test whether the $\tau$-pinning-at-the-prior-edge behaviour described in sec.~\ref{sec:verification_results_psd} could be resolved with additional information, we repeated the $\beta = 3$ and $\beta = 4$ validation at increasing source count rates. Table~\ref{tab:beta34_snr_sweep} and Fig.~\ref{fig:beta34_snr_trend} show that higher counts push the posterior mean of $\tau$ closer to the prior's upper edge (80) rather than away from it, for both $\beta$ values -- the opposite of what an information-deficit explanation would predict. Higher count rates than those shown could not be reliably sampled and are therefore excluded.
 
             \begin{figure}[h]
                 \centering
                 \includegraphics[width=\columnwidth]{beta3_4_snr_trend.pdf}
-                \caption{Posterior mean of $\tau$ as a function of signal-to-noise ratio (\texttt{shift\_term} proxy for source count rate), for $\beta=3$ and $\beta=4$ \texttt{colorednoise} inputs, with the prior's upper edge (80) marked. Higher SNR pushes $\tau$ \emph{closer} to the prior edge rather than away from it, indicating this behaviour is not resolved by additional information and instead reflects a structural mismatch between the short-memory AR(1) model and the long-memory \texttt{colorednoise} process. Signal-to-noise levels beyond shift=7 could not be reliably sampled with the current implementation.}
+                \caption{Posterior mean of $\tau$ as a function of average source count, for $\beta=3$ and $\beta=4$ \texttt{colorednoise} inputs, with the prior's upper edge (80) marked. Higher counts push $\tau$ \emph{closer} to the prior edge rather than away from it, indicating this behaviour is not resolved by additional information and instead reflects a structural mismatch between the short-memory AR(1) model and the long-memory \texttt{colorednoise} process. Higher count rates than those shown could not be reliably sampled.}
                 \label{fig:beta34_snr_trend}
             \end{figure}
 
             \begin{table}[h]
-                \caption{Posterior mean $\tau$ and distance from the prior's upper edge (80) as a function of signal-to-noise ratio (\texttt{shift\_term}), for $\beta=3$ and $\beta=4$.}
+                \caption{Posterior mean $\tau$ as a function of average source count, for $\beta=3$ and $\beta=4$.}
                 \centering
-                \begin{tabular}{ccccc}
+                \begin{tabular}{cccc}
                 \hline\hline
-                $\beta$ & shift\_term & $\hat\tau$ mean & $\hat\tau$ std & dist. from edge \\
+                $\beta$ & avg. count & $\hat\tau$ mean & $\hat\tau$ std \\
                 \hline
-                3 & 1 & 75.68 & 4.01 & 4.32 \\
-                3 & 4 & 78.45 & 1.40 & 1.55 \\
-                3 & 7 & 79.08 & 0.92 & 0.92 \\
-                4 & 1 & 77.36 & 2.58 & 2.64 \\
-                4 & 4 & 79.26 & 0.71 & 0.74 \\
-                4 & 7 & 79.72 & 0.27 & 0.28 \\
+                3 & 4.2 & 75.68 & 4.01 \\
+                3 & 77.3 & 78.45 & 1.40 \\
+                3 & 1341.4 & 79.08 & 0.92 \\
+                4 & 5.4 & 77.36 & 2.58 \\
+                4 & 139.3 & 79.26 & 0.71 \\
+                4 & 2762.4 & 79.72 & 0.27 \\
                 \hline
                 \end{tabular}
                 \label{tab:beta34_snr_sweep}
             \end{table}
 
-            To test whether these two failure modes persist under a larger ensemble and a more extreme input, we repeated the validation for all three $\beta$ values using $N=40$ independent realisations each (up from $N=20$), and added a fourth, steeper case, $\beta=8$. Fig.~\ref{fig:beta_recovery_calibration_squares_only} and Table~\ref{tab:beta_N40_ensemble} summarise the result: $\beta=1.7$ remains unbiased ($t$-test $p=0.24$); $\beta=3$ shows weaker, intermediate evidence of bias (sign test $p=0.08$, $t$-test $p=0.005$); $\beta=4$'s bias is confirmed with overwhelming statistical force (40/40 realisations below true, $p<10^{-11}$). Unexpectedly, $\beta=8$ is also strongly biased (40/40 below true) but with a \emph{lower} recovered mean (3.30) than $\beta=4$ (3.54), despite the true value being twice as large -- the bias does not simply grow with how far the true value exceeds the model's structural ceiling. The posteriors on $\tau$, $\mu$, and $\sigma$ are statistically indistinguishable between the $\beta=4$ and $\beta=8$ cases, so this is not explained by the $\tau$-pinning mechanism above. As one candidate explanation, we tested whether $\tau$'s prior upper bound (80) was artificially masking a genuine difference between the two cases: widening the bound to 500 moved both $\beta=4$ and $\beta=8$'s posteriors to a new, still mutually indistinguishable value ($\approx$460--470), with no meaningful change in the recovered $\beta$ for either case -- ruling out the prior boundary as the explanation. As a second candidate, we tested whether the periodogram log-fitting method itself introduces a bias (a known effect in log-periodogram fitting; \citealt{Vaughan2003}) by simulating a known, pure power-law input directly, bypassing the AR(1)/HMC pipeline entirely; this confirmed a real but far smaller bias (a few percent, not increasing with $\beta$) than observed, ruling this out too. We do not have a confirmed explanation for this result; resolving it is beyond the scope of this work.
+            To test whether these two failure modes persist under a larger ensemble and a more extreme input, we repeated the validation for all three $\beta$ values using $N=40$ independent realisations each (up from $N=20$), and added a fourth, steeper case, $\beta=8$. Fig.~\ref{fig:beta_recovery_calibration_squares_only} and Table~\ref{tab:beta_N40_ensemble} summarise the result: $\beta=1.7$ remains unbiased (24/40 realisations below the true value, consistent with random scatter); $\beta=3$ shows weaker, intermediate evidence of bias (26/40 below true); $\beta=4$'s bias is confirmed with overwhelming statistical force (40/40 realisations below true). Unexpectedly, $\beta=8$ is also strongly biased (40/40 below true) but with a \emph{lower} recovered mean (3.30) than $\beta=4$ (3.54), despite the true value being twice as large -- the bias does not simply grow with how far the true value exceeds the model's structural ceiling. The posteriors on $\tau$, $\mu$, and $\sigma$ are statistically indistinguishable between the $\beta=4$ and $\beta=8$ cases, so this is not explained by the $\tau$-pinning mechanism above. As one candidate explanation, we tested whether $\tau$'s prior upper bound (80) was artificially masking a genuine difference between the two cases: widening the bound to 500 moved both $\beta=4$ and $\beta=8$'s posteriors to a new, still mutually indistinguishable value ($\approx$460--470), with no meaningful change in the recovered $\beta$ for either case -- ruling out the prior boundary as the explanation. As a second candidate, we tested whether the periodogram log-fitting method itself introduces a bias (a known effect in log-periodogram fitting; \citealt{Vaughan2003}) by simulating a known, pure power-law input directly, bypassing the AR(1)/HMC pipeline entirely; this confirmed a real but far smaller bias (a few percent, not increasing with $\beta$) than observed, ruling this out too. We do not have a confirmed explanation for this result; resolving it is beyond the scope of this work.
 
             \begin{figure}[h]
                 \centering
@@ -1794,14 +1794,14 @@ Add a software paragraph similar to the one below
             \begin{table}[h]
                 \caption{$N=40$ realisation-ensemble mean recovered $\beta$ (a separate, larger test from Table~\ref{tab:appendix_params}, not directly comparable to it row-for-row).}
                 \centering
-                \begin{tabular}{ccccc}
+                \begin{tabular}{cccc}
                 \hline\hline
-                True $\beta$ & Mean & Std & Below true/N & $t$-test $p$ \\
+                True $\beta$ & Mean & Std & Below true/N \\
                 \hline
-                1.7 & 1.67 & 0.17 & 24/40 & 0.24 \\
-                3.0 & 2.87 & 0.28 & 26/40 & 0.005 \\
-                4.0 & 3.54 & 0.24 & 40/40 & $<10^{-11}$ \\
-                8.0 & 3.30 & 0.20 & 40/40 & $<10^{-11}$ \\
+                1.7 & 1.67 & 0.17 & 24/40 \\
+                3.0 & 2.87 & 0.28 & 26/40 \\
+                4.0 & 3.54 & 0.24 & 40/40 \\
+                8.0 & 3.30 & 0.20 & 40/40 \\
                 \hline
                 \end{tabular}
                 \label{tab:beta_N40_ensemble}
@@ -1810,8 +1810,6 @@ Add a software paragraph similar to the one below
             %- Explain what the goal is.
             %- Explain the results.
             %- Add scipy and other python package citations.
-            - Should we show the residuals in the bottom of Fig. A.2.?
-            
 
             %%% Vaughan et al. (2003): https://ui.adsabs.harvard.edu/abs/2003MNRAS.345.1271V/abstract
             %%% E.P.J., eds, X-ray Binaries. Cambridge Univ. Press, Cambridge, p. 252 van der Klis M., 1997, in Babu G.J., Feigelson E.D., eds, Statistical Challenges in Modern Astronomy, Vol. II. Springer-Verlag, New York, p. 321
