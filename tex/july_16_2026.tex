@@ -33,6 +33,7 @@
 \usetikzlibrary{positioning, backgrounds}
 
 \usepackage{booktabs} % for the HMC convergence summary table of NH application.
+\usepackage{placeins} % \FloatBarrier -- keeps figures/tables from drifting past section boundaries
  
 % For hyper referencing
 \usepackage[colorlinks=true,
@@ -954,7 +955,7 @@ The $c$ parameter in our fit is a free parameter. For the extreme cases shown in
 We stated the reason behind the small bump at higher $\beta$ values is the binning of a short process, which leaves the first few bins with very few data points and, in turn, causes the first few bins to vary significantly. This means if we can reduce the variance in these bins by adding more points to them we should be able to reduce the number of extreme $\beta$ values and removing the observed bump at higher values in the $\beta$ distribution. To test our reasoning we generated $C_t$ curves with the same combination of $N_H = 21$, $\tau = 2$, $K = -3$ but for 500 time steps instead of 100 and we performed the same inference process. Looking at the bottom left plot of Figure \ref{fig:psd_beta_recovery_tau2_t500} we can see two things happening at the same time. First, the second bump at higher values of $\beta$ is gone and the $\beta$ distribution has become tighter. The disappearance of the small bump at higher values of the $\beta$ distribution and the tightening of the $\beta$ distribution is expected as there are more data points in each bin, which in turn means less variance in each bin. This is especially visible in the left plot of the middle row in Figure \ref{fig:psd_beta_recovery_tau2_t500}. The grey shaded area is tighter at lower frequencies and it becomes even tighter at higher frequencies. This tightening of the grey shaded area creates less extreme values of the power in each bin, especially in the first few bins. Consequently, there are less extreme cases of large $\beta$ values and a tighter distribution around the true value of $\beta$. \\
 A more interesting change is that the true value of $\beta$ has shifted from 1.27 to 0.72. In other words, $\beta$ has become significantly flatter. Looking at the middle row of Figure \ref{fig:psd_beta_recovery_tau2_t500} we can see more bins fall on the frequency range smaller than $f_{bend}$. Thus, a fit to these bins yields flatter $\beta$ values. Given we kept $\tau_{N_H} = 2$ and increased $T$ to $500$, this shows as $T/\tau$ increases more bins fall on the frequency range $f \le f_{bend}$, which in turn drives flatter $\beta$ values. This is true for both $N_H(t)$ and $K(t)$. This makes the interpretation of the $\beta$ values recovered by our model complicated. In other words, one cannot be sure of the recovered $\beta$ unless there is some estimation of $\tau$ (see sec. \ref{sec:limitation}). \\ 
 
-\begin{figure*}
+\begin{figure*}[htbp]
     \centering
     \includegraphics[width=\textwidth]{psd_beta_recovery_Nh21_Tau2_Phi-3_methodB_paper.pdf}
     \caption{PSD recovery for the parameter
@@ -981,9 +982,9 @@ A more interesting change is that the true value of $\beta$ has shifted from 1.2
 \end{figure*}
 
 
-\begin{figure*}
+\begin{figure*}[htbp]
     \centering
-    \includegraphics[width=\textwidth]{nh_extreme_comparison_Nh21_Tau2_Phi-3_v2.pdf} 
+    \includegraphics[width=\textwidth]{nh_extreme_comparison_Nh21_Tau2_Phi-3_v2.pdf}
     \caption{Diagnostic comparison of three extreme-$\beta$ posterior samples of
     the $\log N_H$ process for the parameter combination
     $\log N_H = 21$, $\tau = 2$, $\log K = -3$.
@@ -1016,7 +1017,7 @@ A more interesting change is that the true value of $\beta$ has shifted from 1.2
 
 
 
-\begin{figure*}
+\begin{figure*}[htbp]
     \centering
     \includegraphics[width=\textwidth]{psd_beta_recovery_Nh21_Tau2_Phi-3_T500_methodB_withC_fixed.pdf}
     \caption{PSD recovery for the parameter
@@ -1223,6 +1224,7 @@ After recovering the parameters of interest for different combinations of
     \end{table*}
 
 
+\FloatBarrier
 \section{Results, Example application}
 \label{sec:results_example}
 \subsection{AGN $N_H$ variability}
@@ -1371,7 +1373,7 @@ from Observations~1, 3, and~4.}
 \end{figure*}
 
 
-\begin{figure}
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\columnwidth]{ngc1365_obs3_results_4panel.pdf}
 \caption{%
@@ -1535,6 +1537,7 @@ $1.1\times10^{22}$\,cm$^{-2}$ (Obs\,3).}
 \end{table*}
 
 
+\FloatBarrier
 \section{Discussion}
 \label{sec:discussion}
 Earlier we discussed the importance of X-ray variability and how it provides us with the unique opportunity to test our models of the radiation processes and formation and destruction of gas clouds and winds in the vicinity of BHs. In this work we presented a rather different approach to modeling the X-ray variability where we showed we can simultaneously recover the PSD of the observed light curve along with modeling the behaviour of $N_H(t)$ in the form of an AR(1) process over the course of the entire observation while previous methods only provide a point estimation of $N_H(t)$ for the entire observation duration. At the core of our approach is the concept of state-space modelling where $N_H(t)$ and $K(t)$ are treated as latent variables and photon counts as observed dependent variable. The treatment of $N_H(t)$ as an AR(1) provides us with a new tool to shed light on topics such as geometry, location, homogeneity, and structure of the absorbers. Specifically, a unique advantage of our model is that it provides a posterior distribution on the $\tau$ and $\sigma$ parameters of both $N_H(t)$ and $K(t)$ processes. These parameters can be used in interpretation of the variability of the absorber and corona, respectively (see below). \\
@@ -1687,6 +1690,7 @@ Add a software paragraph similar to the one below
 % 
 
 
+\FloatBarrier
 \appendix
 \section{Recovery and Limits of the Power Law Index}
 \label{app:recovery}
