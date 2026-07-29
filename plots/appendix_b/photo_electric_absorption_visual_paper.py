@@ -89,7 +89,9 @@ ax.set_xlabel(r"Energy (keV)", fontsize=15)
 ax.set_ylabel(r"$F_E$ (photons keV$^{-1}$ cm$^{-2}$ s$^{-1}$)", fontsize=15)
 
 ax.legend(loc="lower right", framealpha=0.92, edgecolor="gray", fontsize=13)
-ax.tick_params(labelsize=13, length=7, width=1.3)
+ax.minorticks_on()
+ax.tick_params(which="major", labelsize=13, length=9, width=1.5)
+ax.tick_params(which="minor", length=5, width=1.2)
 
 plt.tight_layout()
 
