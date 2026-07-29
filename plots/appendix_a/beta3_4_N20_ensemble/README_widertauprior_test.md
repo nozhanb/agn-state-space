@@ -313,3 +313,15 @@ log-fitting bias as the dominant mechanism (real, correctly-signed, but
 the beta=8-worse-than-beta=4 pattern). This closes off a second concrete
 candidate explanation with a direct test rather than leaving it as an
 untested hypothesis; the beta=8 reversal remains an open question.
+
+**Not included in the paper (decided 2026-07-29):** the prior-boundary
+test (Follow-up above) stayed in Appendix A of `july_16_2026.tex`, but
+the periodogram-fitting-bias test (Follow-up 2, this section) was
+written into Appendix A and then deliberately removed -- Nozhan's call
+that it's a side investigation, not central to the paper's actual goal,
+and that stating plainly "we do not have a confirmed explanation; this
+is beyond the scope of this work" is sufficient without walking through
+a second ruled-out mechanism. The test was still run in full and the
+result is real (see table above); this file, `test_periodogram_fit_bias.py`,
+and `periodogram_fit_bias_test.pdf`/`.png` are the record of that work
+for future reference, kept here rather than in the paper.

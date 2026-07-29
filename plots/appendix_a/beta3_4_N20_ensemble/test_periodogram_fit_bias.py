@@ -19,6 +19,12 @@ project, repeat many times, and see whether recovered beta is biased.
 See README_widertauprior_test.md, "Follow-up 2", for the full reasoning
 and the web-search-derived context (Vaughan 2003 / Barret & Vaughan
 2012) that motivated this test.
+
+NOTE (2026-07-29): this test was run to completion and the result is
+real (see README's "Result" and "Status" sections), but it was
+deliberately NOT included in the paper (july_16_2026.tex, Appendix A) --
+Nozhan's call that it's a side investigation not central to the paper's
+goal. Kept here as the record of completed work, for reference only.
 """
 import numpy
 from scipy.optimize import curve_fit
