@@ -92,3 +92,20 @@ Thumbs.db
 # ── Logs and temporary files ──────────────────────────────────────────────────
 *.tmp
 *.bak
+
+# --- Internal reasoning / working notes (NOT for the shared repo) ---
+# The repo is shared with the collaborator; these are private working documents.
+# Also guards against `git add -A` sweeping them in (~210 untracked files here).
+MD_FILE_INDEX.md
+DEFERRED.md
+DISCUSSION_CORE_MESSAGES.md
+consultation/
+doc/APPENDIX_A_REASONING.md
+doc/references_master_list.md
+doc/references_audit_*.md
+doc/session_summary_*.md
+doc/sigma_notation_audit_*.md
+doc/section3_editorial_pass_*.md
+code_backup/ngc_1365/inference_assumptions_justifications.md
+code_backup/ngc_1365/flags_to_revisit.md
+code_backup/ngc_1365/hmc_efficiency_notes.md
